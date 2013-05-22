@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+
+<title>@m_kyoujyuの部屋_test</title>
+
+<!-- meta -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="description" content="">
+<meta name="author" content="pxp_ss">
+
+<!-- css -->
+<link href="/lib/stylesheets/html5-doctor-reset-stylesheet.min.css" rel="stylesheet">
+<link href="/lib/stylesheets/bootstrap.min.css" rel="stylesheet">
+<link href="/lib/stylesheets/bootstrap-responsive.min.css" rel="stylesheet">
+<%- stylesheets %>
+
+<!-- js -->
+<!-- Le HTML5 shim, for IE6-8 support of HTML5 elements -->
+<!--[if lt IE 9]>
+  <script src="/lib/javascripts/html5.js"></script>
+<![endif]-->
+<script src='/lib/javascripts/jquery-1.9.1.min.js'></script>
+<script src='/lib/javascripts/bootstrap.min.js'></script>
+<%- scripts %>
+
+</head>
+<body>
+  <header style="top:0; padding-bottom: 100px;">
+    <div class="navbar navbar-fixed-top navbar-inverse">
+      <div class="navbar-inner" style="padding: 10px;">
+        <ul class="nav">
+          <li style='border-bottom: 1px solid #669933;'>
+            <a href='/select'>問題選択</a>
+          </li>
+          <li style='border-bottom: 1px solid #669933;'>
+            <a href='/ranking'>ランキング</a>
+          </li>
+        </ul>
+        <ul class="nav pull-right">
+          <li><img src="/images/32x32.png" alt="login_image"></li>
+          <li><p style="margin: 8px;">学習者名：</p></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown">
+              <%=username%>さん
+              <span class="caret"></span>
+            </a>
+            <ul class="dropdown-menu">
+            </ul>
+          </li>
+          <li><p style="margin: 10px;">|</p></li>
+          <li><img src="/images/32x32.png" alt="login_image"></li>
+          <li><a href="/destroy">ログアウト</a></li>
+        </ul>
+      </div>
+    </div>
+  </header>
+  <section style="width:auto; margin:70px auto;">
+    <%- body %>
+  </section>
+  <footer style="height: 48px; bottom:0;">
+    <hr>
+    <p class="nav pull-right">© @PxP_ss 2013</p>
+  </footer>
+</body>
+</html>

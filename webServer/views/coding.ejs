@@ -1,0 +1,57 @@
+<% layout('layout') -%>
+
+<!-- this page's stylesheet -->
+<% stylesheet('') -%>
+
+<!-- this page's scripts -->
+<% script('/lib/javascripts/sonic.js') -%>
+<% script('/javascripts/loading.js') -%>
+<% script('/lib/javascripts/edit_area_full.js') -%>
+<% script('/lib/javascripts/editArea_init.js') -%>
+<% script('/javascripts/submit.js') -%>
+
+<!-- explanation -->
+<div style="width: 80%; margin: auto; margin-top: -38px; font-size:18px;">
+  <div class="hero-unit welcome-top" style="padding: 30px;">
+    <h2 id="questionNo"><%= questionNo %></h2>
+    <hr>
+    <div class="explanation" style="line-height: 30px;"><%= explanation %></div>
+ </div>
+  <div style="padding:15px; margin-top:-28px;">
+    <span class="label label-info" style="font-size:18px;">入力例 -> 出力例</span>
+  </div>
+  <div class="example" style="height: 300px; padding: 30px; text-align:center; border: 1px black solid; overflow: scroll; margin:auto;">
+    <%- example %>
+  </div>
+  <div style="text-align:center;">
+    <a id="displaymodal" class="btn btn-large btn-primary" data-toggle="modal" data-target="#loginModal" style="width: 560px; padding:22px;  margin-top: 28px;">この問題に解答する</a>
+  </div>
+  <!-- modal window -->
+  <div id="loginModal" class="modal hide fade" style="font-size:18px; height:600px; width:80%; margin-left:-40%; margin-top:-300px;">
+    <div class="modal-header">
+      <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+      <p id="myModalLabel"><%= questionNo %>の解答をします</p>
+    </div>
+    <div class="modal-body" style="max-height:500px; height:445px;">
+      <!-- textarea -->
+      <div id="textarea" style="text-align:center">
+        <span class="label label-info pull-left">プログラム</span>
+        <textarea id="code_area" name="content" cols="80" rows="15" style="width:100%;"></textarea>
+      </div>
+      <div id="resultarea" style="text-align: center;"></div>
+      <div id="loadingerea" style="text-align: center;"></div>
+    </div>
+    <div class="modal-footer" style="text-align: center;">
+      <div id="submit_mode">
+        <button id="submit" class="btn btn-info btn-large" aria-hidden="true">送信する</button>
+        <button class="btn btn-large" data-dismiss="modal" aria-hidden="true" style="margin-left:30px; ">問題に戻る</button>
+      </div>
+      <div id="debag_mode" style="display:none;">
+        <a href="#" id="debag" class="btn btn-info btn-large" style="margin-left: 30px;">ソースコードを見直す</a>
+
+        <a href="/ranking" class="btn btn-danger btn-large" style="margin-left: 30px;">ランキングを見る</a>
+      </div>
+    </div>
+  </div>
+</div>
+

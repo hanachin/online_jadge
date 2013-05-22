@@ -1,0 +1,34 @@
+<% layout('layout') -%>
+
+<!-- this page's stylesheet -->
+<% stylesheet('/lib/stylesheets/jquery.fileupload-ui.css') -%>
+
+<!-- this page's scripts -->
+<% script('/lib/javascripts/jquery.ui.widget.js') -%>
+<% script('/lib/javascripts/jquery.iframe-transport.js') -%>
+<% script('/lib/javascripts/jquery.fileupload.js') -%>
+<% script('/javascripts/upload.js') -%>
+
+
+<div style="width:70%; margin:-40px auto;">
+  <h1>File Upload</h1>
+  <hr>
+  <div class="row fileupload-buttonbar">
+    <div style="margin:25px;">
+      <span class="btn btn-success fileinput-button">
+        <i class="icon-plus icon-white"></i>
+        <span>Add files...</span>
+          <input id="fileupload" type="file" name="uploads[]" data-url="/upload_questions" multiple>
+        </span>
+      </span>
+    </div>
+  </div>
+  <div id="progress" class="progress" style="margin:20px;">
+    <div class="bar" style="width: 0%;" style="height: 18px; background: green;"></div>
+  </div>
+  <div id="files">
+    <p style="margin:10px">選択したファイル一覧</p>
+  </div>
+</div>
+
+

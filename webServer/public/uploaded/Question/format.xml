@@ -1,0 +1,28 @@
+﻿<?xml version="1.0" encoding="UTF-8"?>
+<data>
+  <question_no>prog20801.c</question_no>
+  <grade_no>2</grade_no>
+  <lesson_no>8</lesson_no>
+  <question_info>
+    <question type = "1">
+      <explanation>文字列str を入力して、その文字列の長さを表示するプログラムを作成しなさい。ただし、文字列操作関数を使用すること。</explanation>
+      <example>
+        <input_ex>文字列=abcdefg</input_ex>
+        <output_ex>7</output_ex>
+        <input_ex>文字列=test</input_ex>
+        <output_ex>4</output_ex>
+        <input_ex>文字列=opi</input_ex>
+        <output_ex>3</output_ex>
+      </example>
+    </question>
+
+    <testcase>
+      <input>abcdefg</input>
+      <output>7</output>
+      <input>abc</input>
+      <output>3</output>
+      <input>testcase</input>
+      <output>8</output>
+    </testcase>
+  </question_info>
+</data>

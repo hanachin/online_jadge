@@ -1,0 +1,20 @@
+<% layout('layout') -%>
+
+<!-- this page's stylesheet -->
+<% stylesheet('') -%>
+
+<!-- this page's scripts -->
+<% script('/javascripts/get_ranking.js') -%>
+
+<div style="width: 80%; margin: -15px auto; ">
+  <h1 style="margin-top: -30px;">ユーザの総合ランキング</h1>
+  <hr>
+  <ul class="nav nav-tabs">
+    <li class="active"><a href="#tab1" data-toggle="tab">総合</a></li>
+  </ul>
+  <div class="tab-content" style="width:100%; margin-top: -18px; auto;">
+    <div class="tab-pane active" id="tab1">
+      <div id="status" style="text-align:center; border: solid 1px #eee; width: 98%; height: 470px; overflow: scroll; padding: 10px;"></div>
+    </div>
+  </div>
+</div>

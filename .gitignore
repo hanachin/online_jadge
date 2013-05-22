@@ -1,0 +1,8 @@
+.DS_Store
+webServer/logs/
+jadgeServer/logs/
+webServer/tmp/
+jadgeServer/node_modules/
+webServer/node_modules/
+*~
+*.swp

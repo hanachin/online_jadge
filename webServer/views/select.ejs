@@ -1,0 +1,72 @@
+<% layout('layout') -%>
+
+<!-- this page's stylesheet -->
+<% stylesheet('') -%>
+
+<!-- this page's scripts -->
+<% script('/lib/javascripts/sonic.js') -%>
+<% script('/javascripts/loading.js') -%>
+<% script('/javascripts/get_questions.js') -%>
+
+<div style="width: 80%; margin: -15px auto; ">
+  <div class="pull-right" style="margin-top: -50px; margin-bottom: 42px;">
+    <select id="lessonNo" class="pull-right">
+        <option value="null" selected>授業を選択してください</option>
+        <option value="1">第 1 回</option>
+        <option value="2">第 2 回</option>
+        <option value="3">第 3 回</option>
+        <option value="4">第 4 回</option>
+        <option value="5">第 5 回</option>
+        <option value="6">第 6 回</option>
+        <option value="7">第 7 回</option>
+        <option value="8">第 8 回</option>
+        <option value="9">第 9 回</option>
+        <option value="10">第 10 回</option>
+        <option value="11">第 11 回</option>
+        <option value="12">第 12 回</option>
+        <option value="13">第 13 回</option>
+        <option value="14">第 14 回</option>
+        <option value="15">第 15 回</option>
+        <option value="16">第 16 回</option>
+        <option value="17">第 17 回</option>
+        <option value="18">第 18 回</option>
+        <option value="19">第 19 回</option>
+        <option value="20">第 20 回</option>
+        <option value="21">第 21 回</option>
+        <option value="22">第 22 回</option>
+        <option value="23">第 23 回</option>
+        <option value="24">第 24 回</option>
+        <option value="25">第 25 回</option>
+        <option value="26">第 26 回</option>
+        <option value="27">第 27 回</option>
+        <option value="28">第 28 回</option>
+        <option value="29">第 29 回</option>
+        <option value="30">第 30 回</option>
+        <option value="31">第 31 回</option>
+        <option value="32">第 32 回</option>
+        <option value="33">第 33 回</option>
+        <option value="34">第 34 回</option>
+        <option value="35">第 35 回</option>
+        <option value="36">第 36 回</option>
+        <option value="37">第 37 回</option>
+        <option value="38">第 38 回</option>
+        <option value="39">第 39 回</option>
+        <option value="40">第 40 回</option>
+        <option value="41">第 41 回</option>
+        <option value="42">第 42 回</option>
+        <option value="43">第 43 回</option>
+        <option value="44">第 44 回</option>
+        <option value="45">第 45 回</option>
+    </select>
+    <div class="pull-right" style="padding: 5px 20px;">+</div>
+    <select id="gradeNo" class="pull-right">
+      <option value="null" selected>学年を選択してください</option>
+      <option value="1">1 年生</option>
+      <option value="2">2 年生</option>
+    </select>
+  </div>
+
+  <!-- table -->
+  <div id="questions" style="text-align:center; border: solid 1px #808080; width: 100%; height: 470px; overflow: scroll;">
+      <img src="/images/300x300.png" alt="test" style="margin:80px auto;"/>
+</div>
