@@ -258,7 +258,7 @@ saveResult = function(req, questionNo, username, source, submitTable, correcterT
     questionNo: questionNo,
     source: source,
     time: time,
-    result: req.jadge
+    result: req.result
   };
   saveData = submitTable.build(insert_obj);
   return saveData.save().success(function() {

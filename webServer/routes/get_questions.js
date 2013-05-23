@@ -26,7 +26,7 @@ exports.main = function(req, res, dataBase) {
     }, function(callBack) {
       var argQuestions;
       argQuestions = req.argQuestions;
-      return getUserCorrect(req, username, argQuestions, correcterTable, callBack, 0);
+      return getUserCorrect(req, username, argQuestions, submitTable, callBack, 0);
     }, function(callBack) {
       return createJSON(req, callBack);
     }, function(callBack) {
@@ -70,12 +70,13 @@ getCorrecters = function(req, username, argQuestions, seq, callBack, num) {
     callBack(null, 2);
     return;
   }
-  cmd = "SELECT DISTINCT userID FROM Submit_table  WHERE userID=" + username + " and questionNo='" + argQuestions[num] + "'";
+  cmd = "SELECT DISTINCT userID FROM Submit_table WHERE questionNo='" + argQuestions[num] + "' and result='Accept'";
   return seq.query(cmd, null, {
     raw: true
   }).success(function(columns) {
-    if ((columns[0] != null)) {
-      req.argCorrecters[num] = columns[0].length;
+    if ((columns != null)) {
+      req.argCorrecters[num] = columns.length;
+      console.log(req.argCorrecters[num]);
     } else {
       req.argCorrecters[num] = 0;
     }
@@ -85,22 +86,24 @@ getCorrecters = function(req, username, argQuestions, seq, callBack, num) {
   });
 };
 
-getUserCorrect = function(req, username, argQuestions, correcterTable, callBack, num) {
+getUserCorrect = function(req, username, argQuestions, submitTable, callBack, num) {
   if (num > argQuestions.length - 1) {
     callBack(null, 3);
     return;
   }
-  return correcterTable.find({
+  return submitTable.find({
     where: {
-      userID: username
+      userID: username,
+      questionNo: argQuestions[num],
+      result: 'Accept'
     }
-  }).success(function(colum) {
-    if ((colum != null)) {
+  }).success(function(columns) {
+    if ((columns != null)) {
       req.argStatus[num] = "AC";
     } else {
       req.argStatus[num] = "WA";
     }
-    return getUserCorrect(req, username, argQuestions, correcterTable, callBack, num + 1);
+    return getUserCorrect(req, username, argQuestions, submitTable, callBack, num + 1);
   }).error(function(err) {
     return console.log("select CorrecterTable Err >> " + err);
   });

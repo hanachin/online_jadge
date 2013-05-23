@@ -250,7 +250,7 @@ saveResult = (req, questionNo, username, source, submitTable, correcterTable, ca
     questionNo  : questionNo
     source      : source
     time        : time
-    result      : req.jadge
+    result      : req.result
   }
   saveData = submitTable.build(insert_obj)
   saveData.save().success () ->

@@ -22,16 +22,16 @@ WA_TMP = '''
 '''
 
 $(() ->
-  if (document.cookie.length >= 1)
+  if (document.cookie.length isnt '')
     cookies = document.cookie.split(';')
     i = 0
     len = cookies.length
     while (i < len)
       parse = cookies[i].split('=')
       # クッキーの名前をキーとして 配列に追加する
-      cookies[parse[0]] = parse[1]
+      cookies[parse[0]] = decodeURIComponent(parse[1])
       i++
-    get_question(cookies['gradeNo'], cookies['lessonNo'])
+    get_question(cookies['gradeNo'], cookies[' lessonNo'])
 
   $('select').change () ->
     gradeNo  = $('#gradeNo option:selected').val()
@@ -60,8 +60,8 @@ get_question = (gradeNo, lessonNo) ->
     )
     .done (data) ->
       # cookieに値を保存する
-      document.cookie = "gradeNo=#{escape(gradeNo)};"
-      document.cookie = "lessonNo=#{escape(lessonNo)};"
+      document.cookie = "gradeNo=#{gradeNo};"
+      document.cookie = "lessonNo=#{lessonNo};"
 
       # 受け取ったJSONをパース
       resJSON = $.parseJSON(data)
@@ -74,10 +74,10 @@ get_question = (gradeNo, lessonNo) ->
         progress = parseInt(correcters / 43 * 100, 10)
 
         # 提出済か判定しHTMLファイルのテンプレートを作成する
-        if (obj.status is 'AC')
-          status = AC_TMP
+        if (obj.state is 'AC')
+          state = AC_TMP
         else
-          status = WA_TMP
+          state = WA_TMP
 
         # tableに挿入するリストを作成する
         content = """
@@ -85,7 +85,7 @@ get_question = (gradeNo, lessonNo) ->
             <td>
               <a href="/coding?questionNo=#{obj.questionNo}">#{obj.questionNo}</a>
             </td>
-            <td>#{status}</td>
+            <td>#{state}</td>
             <td>
               <div class="progress" style="width:80%">
                 <div class="bar" style="color:black; width:0%;"></div>

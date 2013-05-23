@@ -23,6 +23,7 @@ exports.main = (req, res, dataBase) ->
   correcterTable = dataBase.correcterTable
   # database ---------
 
+  ## submitTable -> CorrecterTableに変更するかもしれない
   async.series([
     (callBack) ->
       getQuestions(req, gradeNo, lessonNo, questionTable, callBack)
@@ -33,7 +34,7 @@ exports.main = (req, res, dataBase) ->
     (callBack) ->
       # 正解したことがあるかの取得
       argQuestions = req.argQuestions
-      getUserCorrect(req, username, argQuestions, correcterTable, callBack, 0)
+      getUserCorrect(req, username, argQuestions, submitTable, callBack, 0)
     (callBack) ->
       # JSONデータを作成する
       createJSON(req, callBack)
@@ -52,7 +53,7 @@ exports.main = (req, res, dataBase) ->
 # 問題リストの取得
 getQuestions = (req, gradeNo, lessonNo, questionTable, callBack) ->
   questionTable.findAll(where: {gradeNo: gradeNo, lessonNo: lessonNo}).success (columns) ->
-    if (columns[0]?)
+   if (columns[0]?)
       i = 0
       len = columns.length
       while (i < len)
@@ -69,10 +70,11 @@ getCorrecters = (req, username, argQuestions, seq, callBack, num) ->
     callBack(null, 2)
     return
 
-  cmd = "SELECT DISTINCT userID FROM Submit_table  WHERE userID=#{username} and questionNo='#{argQuestions[num]}'"
+  cmd = "SELECT DISTINCT userID FROM Submit_table WHERE questionNo='#{argQuestions[num]}' and result='Accept'"
   seq.query(cmd, null, {raw: true}).success (columns) ->
-    if (columns[0]?)
-      req.argCorrecters[num] = columns[0].length
+    if (columns?)
+      req.argCorrecters[num] = columns.length
+      console.log req.argCorrecters[num]
     else
       req.argCorrecters[num] = 0
     getCorrecters(req, username, argQuestions, seq, callBack, num + 1)
@@ -81,17 +83,17 @@ getCorrecters = (req, username, argQuestions, seq, callBack, num) ->
 # getCorrecters end -------
 # getUserSubmit -----------
 # 問題に正解したかことがあるかどうかの取得
-getUserCorrect = (req, username, argQuestions, correcterTable, callBack, num) ->
+getUserCorrect = (req, username, argQuestions, submitTable, callBack, num) ->
   if (num > argQuestions.length - 1)
     callBack(null, 3)
     return
 
-  correcterTable.find(where: {userID: username}).success (colum) ->
-    if (colum?)
+  submitTable.find(where: {userID: username, questionNo: argQuestions[num], result: 'Accept'}).success (columns) ->
+    if (columns?)
       req.argStatus[num] = "AC"
     else
       req.argStatus[num] = "WA"
-    getUserCorrect(req, username, argQuestions, correcterTable, callBack, num + 1)
+    getUserCorrect(req, username, argQuestions, submitTable, callBack, num + 1)
   .error (err) ->
     console.log "select CorrecterTable Err >> #{err}"
 # getUserSubmit end ------

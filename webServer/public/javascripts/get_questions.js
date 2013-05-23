@@ -9,16 +9,16 @@ WA_TMP = '<img src="images/wa.png" alt="wa" style="height: 30%;">\n<span style="
 
 $(function() {
   var cookies, i, len, parse;
-  if (document.cookie.length >= 1) {
+  if (document.cookie.length !== '') {
     cookies = document.cookie.split(';');
     i = 0;
     len = cookies.length;
     while (i < len) {
       parse = cookies[i].split('=');
-      cookies[parse[0]] = parse[1];
+      cookies[parse[0]] = decodeURIComponent(parse[1]);
       i++;
     }
-    get_question(cookies['gradeNo'], cookies['lessonNo']);
+    get_question(cookies['gradeNo'], cookies[' lessonNo']);
   }
   return $('select').change(function() {
     var gradeNo, lessonNo;
@@ -43,21 +43,21 @@ get_question = function(gradeNo, lessonNo) {
       },
       dataType: 'text'
     }).done(function(data) {
-      var content, correcters, obj, progress, resJSON, status, _i, _len;
-      document.cookie = "gradeNo=" + (escape(gradeNo)) + ";";
-      document.cookie = "lessonNo=" + (escape(lessonNo)) + ";";
+      var content, correcters, obj, progress, resJSON, state, _i, _len;
+      document.cookie = "gradeNo=" + gradeNo + ";";
+      document.cookie = "lessonNo=" + lessonNo + ";";
       resJSON = $.parseJSON(data);
       $('#questions').html(TABLE_TMP);
       for (_i = 0, _len = resJSON.length; _i < _len; _i++) {
         obj = resJSON[_i];
         correcters = obj.correcters;
         progress = parseInt(correcters / 43 * 100, 10);
-        if (obj.status === 'AC') {
-          status = AC_TMP;
+        if (obj.state === 'AC') {
+          state = AC_TMP;
         } else {
-          status = WA_TMP;
+          state = WA_TMP;
         }
-        content = "<tr data-href=\"/coding?questionNo=" + obj.questionNo + "\" class=\"clickable\">\n  <td>\n    <a href=\"/coding?questionNo=" + obj.questionNo + "\">" + obj.questionNo + "</a>\n  </td>\n  <td>" + status + "</td>\n  <td>\n    <div class=\"progress\" style=\"width:80%\">\n      <div class=\"bar\" style=\"color:black; width:0%;\"></div>\n    </div>\n    <span>クラスの正答者：" + correcters + "/43 人</span>\n  </td>\n</tr>";
+        content = "<tr data-href=\"/coding?questionNo=" + obj.questionNo + "\" class=\"clickable\">\n  <td>\n    <a href=\"/coding?questionNo=" + obj.questionNo + "\">" + obj.questionNo + "</a>\n  </td>\n  <td>" + state + "</td>\n  <td>\n    <div class=\"progress\" style=\"width:80%\">\n      <div class=\"bar\" style=\"color:black; width:0%;\"></div>\n    </div>\n    <span>クラスの正答者：" + correcters + "/43 人</span>\n  </td>\n</tr>";
         $('#list').append(content);
       }
       return $('tr[data-href]').addClass('clickable').click(function(e) {
