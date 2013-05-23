@@ -55,6 +55,7 @@ exports.main = function(req, res, dataBase) {
   ], function(err, result) {
     if (err) {
       throw err;
+      removeQueue(seq, submitQueueTable);
       res.send(500, err);
     }
     return console.log("" + req.ip + " -> submit all done. " + result);
@@ -75,7 +76,7 @@ getQueueContents = function(req, seq, submitQueueTable, callBack) {
         req.username = columns.userID;
         req.questionNo = columns.questionNo;
         req.source = columns.source;
-        req.dir = ("" + req.socket._idleStart + "_") + req.username;
+        req.dir = "" + req.socket._idleStart + "-" + req.username;
         req.dir_path = "" + __dirname + "/../public/source/" + req.dir;
         return callBack(null, 1);
       });
@@ -138,9 +139,12 @@ writeTestcase = function(req, questionNo, path, answerTable, fswrite, callBack) 
 
 compileSource = function(req, questionNo, path, exec, callBack) {
   return exec("gcc -Wall -o " + path + "/" + questionNo + ".out " + path + "/" + questionNo + ".c", function(error, stdout, stderr) {
+    var tmp;
     if (error) {
-      req.result = "Compile Error";
-      req.compile_error = new String(error);
+      req.result = 'Compile Error';
+      error = new String(error);
+      tmp = new RegExp(req.dir_path, 'g');
+      req.compile_error = error.replace(tmp, '');
       console.log("Compile Error -> " + error);
     }
     console.log("" + path + " -> compile!");
@@ -167,8 +171,11 @@ noinputExecute = function(req, questionNo, path, exec, callBack) {
     timeout: 3000,
     maxBuffer: 65536
   }, function(error, stdout, stderr) {
+    var tmp;
     if (error) {
-      req.stderr = new String(error);
+      error = new String(error);
+      tmp = new RegExp(req.dir_path, 'g');
+      req.stderr = error.replace(tmp, '');
       req.result = executeError(num, error);
       callBack(null, 7);
     }
@@ -188,8 +195,11 @@ inputExecute = function(req, questionNo, path, exec, callBack, num) {
     timeout: 3000,
     maxBuffer: 65536
   }, function(error, stdout, stderr) {
+    var tmp;
     if (error) {
-      req.stderr = new String(error);
+      error = new String(error);
+      tmp = new RegExp(req.dir_path, 'g');
+      req.stderr = error.replace(tmp, '');
       req.result = executeError(num, error);
       callBack(null, 7);
       return;
@@ -212,7 +222,7 @@ executeError = function(num, error) {
 };
 
 compareSource = function(req, callBack) {
-  var answer, i, len, result, stdout;
+  var answer, i, kondo_check, len, result, stdout;
   stdout = req.argStdout;
   answer = req.argAnswer;
   result = req.result;
@@ -225,15 +235,12 @@ compareSource = function(req, callBack) {
     len = answer.length;
     while (i < len) {
       if (stdout[i] !== answer[i]) {
-        /*
-                kondo_check = kondoMethod(stdout, answer)
-                if (kondo_check is true)
-                  req.result = "Accept"
-                else
-                return
-        */
-
-        req.result = "Wrong Answer";
+        kondo_check = kondoMethod(stdout[i], answer[i]);
+        if (kondo_check === true) {
+          req.result = "Accept";
+        } else {
+          req.result = "Wrong Answer";
+        }
       } else {
         req.result = "Accept";
       }
@@ -248,7 +255,7 @@ saveResult = function(req, questionNo, username, source, submitTable, correcterT
   time = getTimestamp();
   insert_obj = {
     userID: username,
-    num: questionNo,
+    questionNo: questionNo,
     source: source,
     time: time,
     result: req.jadge
@@ -310,6 +317,7 @@ removeQueue = function(seq, submitQueueTable, callBack) {
     }).success(function(columns) {
       if ((columns != null)) {
         columns.destroy();
+        console.log('delete SubmitQueue_table ------');
       }
       return callBack(null, 11);
     });
@@ -323,10 +331,6 @@ sendMsg = function(req, res, callBack) {
   startTime = req.startTime;
   endTime = getTimestamp();
   console.log("" + req.ip + " -> start:" + startTime + " - " + endTime);
-  console.log("test ---------------------");
-  console.log(req.compile_error);
-  console.log(req.stderr);
-  console.log(req.result);
   obj = {
     cmperr: req.compile_error,
     stderr: req.stderr,
@@ -395,7 +399,7 @@ pulloutDecimal = function(string) {
   len = string.length;
   while (i < len) {
     number = string[i];
-    if (stdout[i] === '.') {
+    if (string[i] === '.') {
       decimal1 = (_ref = string[i + 1]) != null ? _ref : '0';
       decimal2 = (_ref1 = string[i + 2]) != null ? _ref1 : '0';
       number += decimal1 + decimal2;

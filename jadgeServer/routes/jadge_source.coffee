@@ -61,6 +61,7 @@ exports.main = (req, res, dataBase) ->
   ], (err, result) ->
     if (err)
       throw err
+      removeQueue(seq, submitQueueTable)
       res.send(500, err)
     console.log "#{req.ip} -> submit all done. #{result}"
   )
@@ -80,7 +81,7 @@ getQueueContents = (req, seq, submitQueueTable, callBack) ->
         req.username   = columns.userID
         req.questionNo = columns.questionNo
         req.source     = columns.source
-        req.dir        = "#{req.socket._idleStart}_" + req.username
+        req.dir        = "#{req.socket._idleStart}-#{req.username}"
         req.dir_path   = "#{__dirname}/../public/source/#{req.dir}"
         callBack(null, 1)
   .error (error) ->
@@ -119,7 +120,7 @@ writeSource = (questionNo, source, path, fswrite, callBack) ->
 # writeTestcase -----
 # テストケースの書き出し
 writeTestcase = (req, questionNo, path, answerTable, fswrite, callBack) ->
-  answerTable.findAll({where: {questionNo: questionNo}, order: 'id'}).success((columns) ->
+  answerTable.findAll({where: {questionNo: questionNo}, order: 'id'}).success (columns) ->
     if (columns[0]?)
       i   = 0
       len = columns.length
@@ -131,7 +132,6 @@ writeTestcase = (req, questionNo, path, answerTable, fswrite, callBack) ->
         console.log "fswrite_test -> #{path}"
         i++
     callBack(null, 5)
-  )
 # write_testcase end ---
 # compile_source -----
 # プログラムのコンパイル
@@ -139,8 +139,10 @@ compileSource = (req, questionNo, path, exec, callBack) ->
   exec("gcc -Wall -o #{path}/#{questionNo}.out #{path}/#{questionNo}.c", (error, stdout, stderr) ->
   # stdoutもerrorもほとんど同じ error -> command failedが出るとか
     if (error)
-      req.result = "Compile Error"
-      req.compile_error = new String(error)
+      req.result = 'Compile Error'
+      error = new String(error)
+      tmp   = new RegExp(req.dir_path, 'g')
+      req.compile_error = error.replace(tmp, '')
       console.log "Compile Error -> #{error}"
     console.log "#{path} -> compile!"
     callBack(null, 6)
@@ -163,7 +165,9 @@ noinputExecute = (req, questionNo, path, exec, callBack) ->
   exePath = "#{path}/#{questionNo}.out"
   exec(exePath, {timeout: 3000, maxBuffer: 65536}, (error, stdout, stderr) ->
       if (error)
-        req.stderr = new String(error)
+        error = new String(error)
+        tmp   = new RegExp(req.dir_path, 'g')
+        req.stderr = error.replace(tmp, '')
         req.result = executeError(num, error)
         callBack(null, 7)
         return
@@ -178,19 +182,22 @@ inputExecute = (req, questionNo, path, exec, callBack, num) ->
     callBack(null, 7)
     return
 
-  exePath = "#{path}/#{questionNo}.out"
-  testPath = "#{path}/#{req.argTestcase[num]}"
-  cmd = "#{exePath} < #{testPath}"
+  exePath   = "#{path}/#{questionNo}.out"
+  testPath  = "#{path}/#{req.argTestcase[num]}"
+  cmd       = "#{exePath} < #{testPath}"
 
   # maxBuffer:default -> 200 * 1024
   # timeout:default ->  0
   # killSignal: default -> 'SIGTERM'
   exec(cmd, {timeout: 3000, maxBuffer: 65536}, (error, stdout, stderr) ->
     if (error)
-      req.stderr = new String(error)
+      error = new String(error)
+      tmp   = new RegExp(req.dir_path, 'g')
+      req.stderr = error.replace(tmp, '')
       req.result = executeError(num, error)
       callBack(null, 7)
       return
+
     req.argStdout[num] = stdout
     inputExecute(req, questionNo, path, exec, callBack, num + 1)
   )
@@ -224,14 +231,11 @@ compareSource = (req, callBack) ->
     len = answer.length
     while (i < len)
       if (stdout[i] isnt answer[i])
-        ###
-        kondo_check = kondoMethod(stdout, answer)
+        kondo_check = kondoMethod(stdout[i], answer[i])
         if (kondo_check is true)
           req.result = "Accept"
         else
-        return
-        ###
-        req.result = "Wrong Answer"
+          req.result = "Wrong Answer"
       else
         req.result = "Accept"
       i++
@@ -242,11 +246,11 @@ compareSource = (req, callBack) ->
 saveResult = (req, questionNo, username, source, submitTable, correcterTable, callBack) ->
   time = getTimestamp()
   insert_obj = {
-    userID  : username
-    num     : questionNo
-    source  : source
-    time    : time
-    result  : req.jadge
+    userID      : username
+    questionNo  : questionNo
+    source      : source
+    time        : time
+    result      : req.jadge
   }
   saveData = submitTable.build(insert_obj)
   saveData.save().success () ->
@@ -295,6 +299,7 @@ removeQueue = (seq, submitQueueTable, callBack) ->
       # 確実な解決策：ALTER TABLE <テーブル名> AUTO_INCREMENT = 1;
       if (columns?)
         columns.destroy()
+        console.log 'delete SubmitQueue_table ------'
       callBack(null, 11)
   .error (error) ->
     console.log "submit SubmitQueue_table err > #{error}"
@@ -307,15 +312,10 @@ sendMsg = (req, res, callBack) ->
   endTime = getTimestamp()
   console.log "#{req.ip} -> start:#{startTime} - #{endTime}"
 
-  console.log "test ---------------------"
-  console.log req.compile_error
-  console.log req.stderr
-  console.log req.result
-
   obj = {
     cmperr : req.compile_error
     stderr : req.stderr
-    result: req.result
+    result : req.result
   }
   res.send('200', obj)
   callBack(null, 12)
@@ -375,7 +375,7 @@ pulloutDecimal = (string) ->
   len = string.length
   while (i < len)
     number = string[i]
-    if (stdout[i] is '.')
+    if (string[i] is '.')
       decimal1 = string[i + 1] ? '0'
       decimal2 = string[i + 2] ? '0'
       number += decimal1 + decimal2

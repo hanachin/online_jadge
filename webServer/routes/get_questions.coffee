@@ -58,7 +58,7 @@ getQuestions = (req, gradeNo, lessonNo, questionTable, callBack) ->
       while (i < len)
         req.argQuestions[i] = columns[i].questionNo
         i++
-      callBack(null, 1)
+    callBack(null, 1)
   .error (err) ->
     console.log "select QuestionTable Err >> #{err}"
 # get_questions end -------
@@ -69,7 +69,7 @@ getCorrecters = (req, username, argQuestions, seq, callBack, num) ->
     callBack(null, 2)
     return
 
-  cmd = "SELECT DISTINCT userID FROM Correcter_table  WHERE questionNo='#{argQuestions[num]}'"
+  cmd = "SELECT DISTINCT userID FROM Submit_table  WHERE userID=#{username} and questionNo='#{argQuestions[num]}'"
   seq.query(cmd, null, {raw: true}).success (columns) ->
     if (columns[0]?)
       req.argCorrecters[num] = columns[0].length

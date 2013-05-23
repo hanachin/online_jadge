@@ -1,0 +1,14 @@
+{
+  "name": "pxp-OnlineJadge-JadgeServer",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "start": "node app"
+  },
+  "dependencies": {
+    "express"      : "3.0.0rc2",
+    "ejs-locals"   : "*",
+    "async"	   : "*",
+    "crafity-log4js: "*",
+  }
+}

@@ -49,16 +49,19 @@ $(() ->
       cache: true
     )
     .done (data) ->
-      console.log data
-      alert(data)
+      resJSON = $.parseJSON(data)
 
-      result = data.result
+      console.log resJSON
+
+      result = resJSON.result
+      cmperr = resJSON.cmperr
+      stderr = resJSON.stderr
+
       sourcecodeErea.css('display', 'none')
       loadingErea.css('display', 'none')
       debag_mode.css('display', 'block')
       resultErea.css('display', 'block')
 
-      # 不正解の場合
       switch (result)
         when ('Accept')
           displayresult = """
@@ -68,27 +71,33 @@ $(() ->
           """
         when ("Time Limit Exceeded")
           displayresult = """
-            <h1 style='font-family: times new roman; font-size: 100px; padding: 80px; line-height: 85px;'>#{result}</h1>
+            <h2 style='font-family: times new roman; font-size: 80px; padding: 40px; line-height: 85px;'>#{result}</h2>
             <p>不正解です。プログラムの実行に時間がかかっています。</p>
             <p>ループのチェックをしてみましょう！</p>
           """
         when ("Compile Error")
           displayresult = """
-            <h1 style='font-family: times new roman; font-size: 100px; padding: 80px; line-height: 85px;'>#{result}</h1>
+            <h2 style='font-family: times new roman; font-size: 80px; padding: 40px; line-height: 85px;'>#{result}</h2>
             <p>不正解です。コンパイルができません。</p>
             <p>C言語の文法をチェックしてみましょう！</p>
           """
         when ("Segmentation Fault")
           displayresult = """
-            <h1 style='font-family: times new roman; font-size: 100px; padding: 80px; line-height: 85px;'>#{result}</h1>
+            <h2 style='font-family: times new roman; font-size: 80px; padding: 40px; line-height: 85px;'>#{result}</h2>
             <p>不正解です。プログラムがメモリ空間に異常を与えています。</p>
             <p>ループの異常、またはポインタやscanfの文法をチェックしてみましょう！</p>
           """
         else
           displayresult = """
-            <h1 style='font-family: times new roman; font-size: 100px; padding: 80px; line-height: 85px;'>#{result}</h1>
+            <h2 style='font-family: times new roman; font-size: 80px; padding: 40px; line-height: 85px;'>#{result}</h2>
             <p>不正解です。出力と出力例を見比べてみましょう！</p>
           """
+
+      if (cmperr isnt '')
+        displayresult += "<pre style='overflow:auto; max-height:135px; text-align: left; width: 80%; margin: 40px auto; line-height: 27px;'>#{cmperr}</pre>"
+      if (stderr isnt '')
+        displayresult += "<pre style='overflow:auto; max-height:135px; text-align: left; width: 80%; margin: 40px auto; line-height: 27px;'>#{stderr}</pre>"
+
       resultErea.html(displayresult)
     .fail () ->
       alert 'サーバ通信エラー'
