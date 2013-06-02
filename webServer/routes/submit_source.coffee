@@ -47,6 +47,8 @@ insertQueue = (username, questionNo, source, submitQueueTable, callBack) ->
     console.log("submitQueueTable save Error >> #{error}")
 # insertQueue end ---------
 # requestJadgeServer ------
+counter = 0
+max_connect = 5
 requestJadgeServer = (req, reqHttp, callBack) ->
   options = {
     hostname : 'localhost'
@@ -54,18 +56,24 @@ requestJadgeServer = (req, reqHttp, callBack) ->
     path     : '/request_jadge'
   }
 
-  requestJadge = reqHttp(options,  (res) ->
-    console.log "StatusCode : #{res.statusCode}"
-    res.setEncoding('utf8')
-    res.on('data', (jadge_result) ->
-      console.log "JadgeServer Response:  #{jadge_result}"
-      req.result = jadge_result
-      callBack(null, 2)
-    ).on('error', (err) ->
-      console.log "problem with request : #{err.message}"
-      req.error = err
+  counter++
+  if (counter < max_connect)
+    requestJadge = reqHttp(options,  (res) ->
+      counter--
+      console.log "StatusCode : #{res.statusCode}"
+      res.setEncoding('utf8')
+      res.on('data', (jadge_result) ->
+        console.log "JadgeServer Response:  #{jadge_result}"
+        req.result = jadge_result
+        callBack(null, 2)
+      ).on('error', (err) ->
+        console.log "problem with request : #{err.message}"
+        req.error = err
+      )
     )
-  )
+  else
+    setTimeout(requestJadgeServer, 1000, req, reqHttp, callBack)
+    return
 # end requestJadgeServer -----
 # resJadgeResult -------------
 resJadgeResult = (req, res, callBack) ->

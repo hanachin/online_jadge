@@ -127,8 +127,8 @@ writeTestcase = (req, questionNo, path, answerTable, fswrite, callBack) ->
       while (i < len)
         testcase_path = "#{path}/#{questionNo}#{i}.txt"
         fswrite(testcase_path, columns[i].testcase)
-        req.argTestcase[i]= "#{questionNo}#{i}.txt"
-        req.argAnswer[i] = columns[i].answer
+        req.argTestcase[i]  = "#{questionNo}#{i}.txt"
+        req.argAnswer[i]    = columns[i].answer
         console.log "fswrite_test -> #{path}"
         i++
     callBack(null, 5)
@@ -161,7 +161,7 @@ executeSource = (req, questionNo, path, exec, callBack) ->
 # execute_source end ---------
 # noinput_execute ------------
 # 入力のないプログラムの実行
-noinputExecute = (req, questionNo, path, exec, callBack) ->
+noinputExecute = (req, questionNo, path, exec, callBack, num) ->
   exePath = "#{path}/#{questionNo}.out"
   exec(exePath, {timeout: 3000, maxBuffer: 65536}, (error, stdout, stderr) ->
       if (error)
@@ -171,7 +171,7 @@ noinputExecute = (req, questionNo, path, exec, callBack) ->
         req.result = executeError(num, error)
         callBack(null, 7)
         return
-    req.argStdout[num] = stdout
+    req.argStdout[num] = stdout.replace(/\r\n$/, '')
     callBack(null, 7)
   )
 # noinput_execute end ------
@@ -198,7 +198,7 @@ inputExecute = (req, questionNo, path, exec, callBack, num) ->
       callBack(null, 7)
       return
 
-    req.argStdout[num] = stdout
+    req.argStdout[num] = stdout.replace(/\r?\n$/, '')
     inputExecute(req, questionNo, path, exec, callBack, num + 1)
   )
 # input_execute end ------
@@ -232,10 +232,12 @@ compareSource = (req, callBack) ->
     while (i < len)
       if (stdout[i] isnt answer[i])
         kondo_check = kondoMethod(stdout[i], answer[i])
+        console.log "kondo_check: #{kondo_check}"
         if (kondo_check is true)
           req.result = "Accept"
         else
           req.result = "Wrong Answer"
+          break
       else
         req.result = "Accept"
       i++
@@ -303,7 +305,7 @@ removeQueue = (seq, submitQueueTable, callBack) ->
       callBack(null, 11)
   .error (error) ->
     console.log "submit SubmitQueue_table err > #{error}"
-# -------------------------
+# removeQueue --------------
 # send_message -------------
 # 結果の送信
 sendMsg = (req, res, callBack) ->
@@ -320,7 +322,7 @@ sendMsg = (req, res, callBack) ->
   res.send('200', obj)
   callBack(null, 12)
 # send_message end --------
-# kondoMethod ------------
+# kondoMethod -------------
 kondoMethod = (stdout, answer) ->
   stdout = replaceFullsizeChar(stdout)
   answer = replaceFullsizeChar(answer)
@@ -336,8 +338,10 @@ kondoMethod = (stdout, answer) ->
   stdout = skipTable(stdout)
   if (stdout is answer)
     return true
-  stdout = pulloutDecimal(stdout)
-  answer = pulloutDecimal(answer)
+  stdout = pulloutNumber(stdout)
+  answer = pulloutNumber(answer)
+  if (stdout is '' or answer is '')
+    return false
   if (stdout is answer)
     return true
   return false
@@ -364,17 +368,19 @@ replaceEqualsign = (string) ->
 # skipTable --------------
 skipTable = (string) ->
   # スキップテーブル (空白を削除)
-  translation = string.replace(/\s+/g, '')
+  translation = string.replace(/[ ]+/g, '')
   return translation
 # skipTable --------------
 # pulloutDecimal ---------
-pulloutDecimal = (string) ->
-  # プログラムの解答から数値を抜き出す
+pulloutNumber = (string) ->
+  # プログラムの解答から小数を抜き出す
   # 数値が少ない場合は自動的に小数第二位まで0詰め
   i = 0
   len = string.length
+  number = ''
   while (i < len)
-    number = string[i]
+    if ('0' <= string[i] <= '9')
+      number += string[i]
     if (string[i] is '.')
       decimal1 = string[i + 1] ? '0'
       decimal2 = string[i + 2] ? '0'

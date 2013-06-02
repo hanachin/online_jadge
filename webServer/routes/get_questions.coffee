@@ -109,8 +109,6 @@ createJSON = (req, callBack) ->
       state: req.argStatus[i]
     }
     i++
-
-  console.log req.argResJSON
   callBack(null, 4)
 # createJSON end --------
 # response --------------

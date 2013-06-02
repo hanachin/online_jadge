@@ -88,7 +88,7 @@ get_question = (gradeNo, lessonNo) ->
             <td>#{state}</td>
             <td>
               <div class="progress" style="width:80%">
-                <div class="bar" style="color:black; width:0%;"></div>
+                <div class="bar" style="color:black; width:#{progress}%;"></div>
               </div>
               <span>クラスの正答者：#{correcters}/43 人</span>
             </td>

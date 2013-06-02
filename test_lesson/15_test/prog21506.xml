@@ -1,0 +1,45 @@
+<?xml version="1.0"?>
+<data>
+<question_no>prog21506.c</question_no>
+<grade_no>2</grade_no>
+<lesson_no>15</lesson_no>
+<question_info>
+  <question>
+    <explanation>
+    以下のプログラムの出力を確認しなさい。
+    <pre>
+    #include &lt;stdio.h&gt;
+    int a;
+    int main(void)
+    {
+      int b;
+      int c;
+      static int d;
+      printf(&quot;a = %d, b = %d, c = %d, d = %d\n&quot;, a, b, c, d);
+      return (0);
+    }
+    </pre>
+    </explanation>
+    <exsample>
+      <input_ex>
+      入力なし
+      </input_ex>
+      <output_ex>
+      a = 0, b = 32767, c = 1368307992, d = 0
+      </output_ex>
+      <input_ex>
+      入力なし
+      </input_ex>
+      <output_ex>
+      a = 0, b = 32767, c = 1344862488, d = 0
+      </output_ex>
+    </exsample>
+  </question>
+  <testcase>
+    <input>
+    </input>
+    <output>
+    </output>
+  </testcase>
+</question_info>
+</data>

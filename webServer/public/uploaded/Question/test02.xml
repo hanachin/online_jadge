@@ -1,0 +1,54 @@
+<?xml version="1.0"?>
+
+<data>
+<question_no>prog20802.c</question_no>
+<grade_no>2</grade_no>
+<lesson_no>8</lesson_no>
+<question_info>
+  <question>
+    <explanation>
+    文字列str1とstr2を入力し、どちらの文字列が長いか表示するプログラムを作成しなさい。
+    ただし、文字列操作関数を使用すること。
+    </explanation>
+    <exsample>
+      <input_ex>
+        文字列1=abcdefg
+        文字列2=1234
+      </input_ex>
+      <output_ex>
+        文字列1の方が長い
+      </output_ex>
+      <input_ex>
+        文字列1=abcdef
+        文字列2=123456
+      </input_ex>
+      <output_ex>
+        どちらも同じ長さです
+      </output_ex>
+    </exsample>
+  </question>
+  <testcase>
+    <input>
+      abcdefg
+      1234
+    </input>
+    <output>
+      文字列1の方が長いです
+    </output>
+    <input>
+      abcdefg
+      123456789
+    </input>
+    <output>
+      文字列2の方が長い
+    </output>
+    <input>
+      abcdf
+      12345
+    </input>
+    <output>
+      どちらも同じ長さです
+    </output>
+  </testcase>
+</question_info>
+</data>

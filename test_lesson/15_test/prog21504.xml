@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<data>
+<question_no>prog21504.c</question_no>
+<grade_no>2</grade_no>
+<lesson_no>15</lesson_no>
+<question_info>
+  <question>
+    <explanation>
+    以下のプログラムの出力を確認しなさい。
+    <pre>
+    #include &lt;stdio.h&gt;
+    int x = 700;
+    void print_x(void);
+    void print_x(void)
+    {
+      printf(&quot;(1)x = %d\n&quot;, x);
+    }
+    int main(void)
+    {
+      int i;
+      int x;
+      x = 800;
+      print_x();
+      printf(&quot;(2)x = %d\n&quot;, x);
+      for (i = 0; i &lt; 5; i++){
+        int x;
+        x = i * 100;
+        printf(&quot;(3)x = %d\n&quot;, x);
+      }
+      printf(&quot;(4)x = %d\n&quot;, x);
+      return (0);
+    }
+    </pre>
+    </explanation>
+    <exsample>
+      <input_ex>
+      入力なし
+      </input_ex>
+      <output_ex>
+      (1)x = 700
+      (2)x = 800
+      (3)x = 0
+      (3)x = 100
+      (3)x = 200
+      (3)x = 300
+      (3)x = 400
+      (4)x = 800
+      </output_ex>
+    </exsample>
+  </question>
+  <testcase>
+    <input>
+    </input>
+    <output>
+    (1)x = 700
+    (2)x = 800
+    (3)x = 0
+    (3)x = 100
+    (3)x = 200
+    (3)x = 300
+    (3)x = 400
+    (4)x = 800
+    </output>
+  </testcase>
+</question_info>
+</data>

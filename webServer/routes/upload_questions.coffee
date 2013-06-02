@@ -75,18 +75,26 @@ xmlParse = (req, target_path, readFile, cheerio, callBack) ->
       xmlMode: true
     })
     # データをパースして、reqオブジェクトに格納する
-    req.gradeNo     = $("grade_no").text()
-    req.lessonNo    = $("lesson_no").text()
-    req.explanation = $("explanation").text()
-    req.questionNo  = $("question_no").text()
+    tmp             = $("grade_no").text().replace(/[ ]+/g, '')
+    req.gradeNo     = tmp.replace(/^\n/, '')
+    tmp             = $("lesson_no").text().replace(/[ ]+/g, '')
+    req.lessonNo    = tmp.replace(/^\n/, '')
+    tmp             = $("explanation").text().replace(/[ ]+/g, '')
+    req.explanation = tmp.replace(/^\n/, '')
+    tmp             = $("question_no").text().replace(/[ ]+/g, '')
+    req.questionNo  = tmp.replace(/^\n/g, '')
     $('input_ex').each (i, elem) ->
-      req.input_ex[i] = $(this).text()
+      tmp = $(this).text().replace(/[ ]+/g, '')
+      req.input_ex[i] = tmp.replace(/^\n/, '')
     $('output_ex').each (i, elem) ->
-      req.output_ex[i] = $(this).text()
+      tmp = $(this).text().replace(/[ ]+/g, '')
+      req.output_ex[i] = tmp.replace(/^\n/, '')
     $('input').each (i, elem) ->
-      req.testcase[i] = $(this).text()
+      tmp = $(this).text().replace(/[ ]+/g, '')
+      req.testcase[i] = tmp.replace(/^\n/, '')
     $('output').each (i, elem) ->
-      req.answer[i] = $(this).text()
+      tmp = $(this).text().replace(/[ ]+/g, '')
+      req.answer[i] = tmp.replace(/^\n/, '')
     callBack(null, 2)
   )
 # ---- xmlParse ----------------------------------------------

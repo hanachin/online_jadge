@@ -1,0 +1,49 @@
+<?xml version="1.0"?>
+
+<data>
+  <question_no>prog20803.c</question_no>
+  <grade_no>2</grade_no>
+  <lesson_no>8</lesson_no>
+
+  <question_info>
+    <question>
+      <explanation>
+        文字列strを入力し、文字列を逆転して表示するプログラムを作成しなさい。ただし、文字列操作関数を使用すること。
+      </explanation>
+      <example>
+        <input_ex>
+          文字列=abcdefg
+        </input_ex>
+        <output_ex>
+          gfedcba
+        </output_ex>
+        <input_ex>
+          文字列=string
+        </input_ex>
+        <output_ex>
+          gnirts
+        </output_ex>
+      </example>
+    </question>
+    <testcase>
+      <input>
+        abc
+      </input>
+      <output>
+        cba
+      </output>
+      <input>
+        testcase
+      </input>
+      <output>
+        esactset
+      </output>
+      <input>
+        aaaaaaaaaa
+      </input>
+      <output>
+        aaaaaaaaaa
+      </output>
+    </testcase>
+  </question_info>
+</data>

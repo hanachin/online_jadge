@@ -1,0 +1,59 @@
+<?xml version="1.0"?>
+
+<prog>
+<prog_data>
+<grade_no>2</grade_no>
+<class_no>8</class_no>
+<question_no>4</question_no>
+</prog_data>
+
+<question type = "1">
+<sent>
+文字列str1を入力して、str1の内容をstr2にコピーした後、str2を表示するプログラムを作成しなさい。
+ただし、文字列操作関数を使用すること。
+</sent>
+<exsample>
+<input_ex>
+文字列1=abcde
+</input_ex>
+<output_ex>
+文字列2=abcde
+</output_ex>
+<input_ex>
+文字列1=string1
+</input_ex>
+<output_ex>
+文字列2=string1
+</output_ex>
+</exsample>
+</question>
+
+<test>
+<case no ="1">
+<input>
+abcde
+</input>
+<output>
+abcde
+</output>
+</case>
+<case no="2">
+<input>
+testcase
+</input>
+<output>
+testcase
+</output>
+</case>
+<case no="3">
+<input>
+position
+</input>
+<output>
+position
+</output>
+</case>
+</test>
+
+<answer>prog20804.c</answer>
+</prog>

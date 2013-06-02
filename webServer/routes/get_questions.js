@@ -121,7 +121,6 @@ createJSON = function(req, callBack) {
     };
     i++;
   }
-  console.log(req.argResJSON);
   return callBack(null, 4);
 };
 

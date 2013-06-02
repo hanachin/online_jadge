@@ -1,61 +1,54 @@
 # main root -----------
-exports.main = (req, res, database) ->
+exports.main = (req, res, dataBase) ->
   # module ------------
   async = require 'async'
   # module end --------
 
-  # tmp --------------
+  # user info ---------
   ip_address = req.ip
-  time = 300
-  # tmp end ----------
+  # user info --------
 
-  # instance ---------
-  req.ranking = req.ranking
-  req.resJSON = req.resJSON
-  # instance end -----
+  req.ranking = []
+
+  # database --------
+  submitTable = dataBase.submitTable
+  # database --------
 
   async.series([
-    (callback) ->
-      get_submits(req, database)
-      setTimeout(() ->
-        callback(null, 1)
-      , time)
-    (callback) ->
-      response(req, res)
-      setTimeout(() ->
-        callback(null, 2)
-      , time)
+    (callBack) ->
+      getSubmits(req, submitTable, callBack)
+    (callBack) ->
+      sendRanking(req, res, callBack)
   ], (err, result) ->
     if (err)
       throw err
       res.redirect '/'
     console.log "get_ranking all done. #{result}"
   )
-
   console.log "get_ranking ---------- #{ip_address}"
 # main root end --------
-
-# get_submits ----------
-# 送信された問題の履歴（status）を作成する
-get_submits = (req, database) ->
-  database.Submit_table.findAll({order:"time DESC", limit: 100}).success((calum) ->
-    if (calum?)
+# getSubmits -----------
+# 送信された問題の履歴を作成する
+getSubmits = (req, submitTable, callBack) ->
+  submitTable.findAll({order: "time DESC", limit: 100}).success (columns) ->
+    if (columns?)
       i = 0
-      len = calum.length
+      len = columns.length
       while (i < len)
         req.ranking[i] = {
-          volumeNo: calum[i].num
-          username: calum[i].register
-          result: calum[i].jadge
-          time: calum[i].time
+          questionNo  : columns[i].questionNo
+          userID      : columns[i].userID
+          result      : columns[i].result
+          time        : columns[i].time
         }
         i++
-  )
-# get_submits end -----
-
-# response ------------
+    callBack(null, 1)
+  .error (error) ->
+    console.log "submitTable err > #{error}"
+# get_submits end ------
+# sendRanking ----------
 # json形式にして、レスポンスを返す
-response = (req, res) ->
+sendRanking = (req, res, callBack) ->
   res.json req.ranking
-# response end -------
-
+  callBack(null, 2)
+# sendRanking end -----

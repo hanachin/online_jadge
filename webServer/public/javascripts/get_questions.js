@@ -57,7 +57,7 @@ get_question = function(gradeNo, lessonNo) {
         } else {
           state = WA_TMP;
         }
-        content = "<tr data-href=\"/coding?questionNo=" + obj.questionNo + "\" class=\"clickable\">\n  <td>\n    <a href=\"/coding?questionNo=" + obj.questionNo + "\">" + obj.questionNo + "</a>\n  </td>\n  <td>" + state + "</td>\n  <td>\n    <div class=\"progress\" style=\"width:80%\">\n      <div class=\"bar\" style=\"color:black; width:0%;\"></div>\n    </div>\n    <span>クラスの正答者：" + correcters + "/43 人</span>\n  </td>\n</tr>";
+        content = "<tr data-href=\"/coding?questionNo=" + obj.questionNo + "\" class=\"clickable\">\n  <td>\n    <a href=\"/coding?questionNo=" + obj.questionNo + "\">" + obj.questionNo + "</a>\n  </td>\n  <td>" + state + "</td>\n  <td>\n    <div class=\"progress\" style=\"width:80%\">\n      <div class=\"bar\" style=\"color:black; width:" + progress + "%;\"></div>\n    </div>\n    <span>クラスの正答者：" + correcters + "/43 人</span>\n  </td>\n</tr>";
         $('#list').append(content);
       }
       return $('tr[data-href]').addClass('clickable').click(function(e) {

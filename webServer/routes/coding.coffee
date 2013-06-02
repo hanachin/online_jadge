@@ -54,8 +54,8 @@ getExamples = (req, questionNo, exampleTable, callBack) ->
       i   = 0
       len = columns.length
       while (i < len)
-        req.argInput_ex[i]  = columns[i].input_ex
-        req.argOutput_ex[i] = columns[i].output_ex
+        req.argInput_ex[i]  = columns[i].input_ex.replace(/[ ]+/g, '')
+        req.argOutput_ex[i] = columns[i].output_ex.replace(/[ ]+/g, '')
         i++
     callBack(null, 2)
   ).error((err) ->
@@ -71,8 +71,8 @@ createExamples = (req, callBack) ->
   i = 0
   len = req.argInput_ex.length
   while (i < len)
-    pre_input  = "<td style='font-size:20px; width:50%; text-align:center;'><pre style='font-size: 16px; padding: 20px;'>#{input_ex[i]}</pre></td>"
-    pre_output = "<td style='font-size:20px; width:50%; text-align:center;'><pre style='font-size: 16px; padding: 20px;'>#{output_ex[i]}</pre></td>"
+    pre_input  = "<td style='font-size:20px; width:50%; text-align:center;'><pre style='font-size: 16px; padding: 10px; line-height:25px;'>#{input_ex[i]}</pre></td>"
+    pre_output = "<td style='font-size:20px; width:50%; text-align:center;'><pre style='font-size: 16px; padding: 10px; line-height:25px;'>#{output_ex[i]}</pre></td>"
     req.examples += "<tr>#{pre_input} #{line} #{pre_output}</tr>"
     i++
   req.examples = "<table style='width:80%; margin:auto;'>#{req.examples}</table>"
@@ -83,7 +83,7 @@ createExamples = (req, callBack) ->
 getNextpage = (req, res, username, callBack) ->
   res.render 'coding', {
     username    : username
-    questionNo    : req.questionNo
+    questionNo  : req.questionNo
     explanation : req.explanation
     example     : req.examples
   }

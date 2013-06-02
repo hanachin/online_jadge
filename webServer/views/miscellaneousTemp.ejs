@@ -23,6 +23,7 @@
 <![endif]-->
 <script src='/lib/javascripts/jquery-1.9.1.min.js'></script>
 <script src='/lib/javascripts/bootstrap.min.js'></script>
+<script src='/lib/javascripts/footerFixed.js'></script>
 <%- scripts %>
 </head>
 <body>
@@ -36,12 +37,14 @@
       </div>
     </div>
   </header>
-  <section style="width:auto; margin:70px auto;">
+  <div id="wapper">
+  <section style="width:auto; margin:100px auto;">
     <%- body %>
   </section>
-  <footer style="height: 48px; bottom:0;">
+  <footer id="footer" style="bottom:0; height:60px; width: 100%;">
     <hr>
     <p class="nav pull-right">© @PxP_ss 2013</p>
   </footer>
+</div>
 </body>
 </html>
