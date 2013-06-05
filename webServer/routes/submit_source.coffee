@@ -48,7 +48,7 @@ insertQueue = (username, questionNo, source, submitQueueTable, callBack) ->
 # insertQueue end ---------
 # requestJadgeServer ------
 counter = 0
-max_connect = 5
+max_connect = 1
 requestJadgeServer = (req, reqHttp, callBack) ->
   options = {
     hostname : 'localhost'
@@ -56,8 +56,8 @@ requestJadgeServer = (req, reqHttp, callBack) ->
     path     : '/request_jadge'
   }
 
-  counter++
   if (counter < max_connect)
+    counter++
     requestJadge = reqHttp(options,  (res) ->
       counter--
       console.log "StatusCode : #{res.statusCode}"
