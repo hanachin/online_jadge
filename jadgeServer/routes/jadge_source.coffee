@@ -20,6 +20,7 @@ exports.main = (req, res, dataBase) ->
   req.source     = ""
   req.dir        = ""
   req.dir_path   = ""
+  req.queueID    = ""
   req.argTestcase   = []
   req.argStdout     = []
   req.argAnswer     = []
@@ -55,7 +56,7 @@ exports.main = (req, res, dataBase) ->
     (callBack) ->
       removeDir(req.questionNo, req.dir_path, child_process.exec, callBack)
     (callBack) ->
-      removeQueue(seq, submitQueueTable, callBack)
+      removeQueue(req.queueID, submitQueueTable, callBack)
     (callBack) ->
       sendMsg(req, res, callBack)
   ], (err, result) ->
@@ -78,6 +79,7 @@ getQueueContents = (req, seq, submitQueueTable, callBack) ->
   seq.query(lock_cmd).success () ->
     seq.query(find_cmd).success (id) ->
       submitQueueTable.find({where: {id: id[0]['LAST_INSERT_ID()']}}).success (columns) ->
+        req.queuID     = columns.id
         req.username   = columns.userID
         req.questionNo = columns.questionNo
         req.source     = columns.source
@@ -291,18 +293,16 @@ removeDir = (questionNo, path, exec, callBack) ->
 # remove_dir end ----------
 # removeQueue -------------
 # キューの削除
-removeQueue = (seq, submitQueueTable, callBack) ->
-  find_cmd = 'SELECT LAST_INSERT_ID() from SubmitQueue_table;'
-  seq.query(find_cmd).success (id) ->
-    submitQueueTable.find({where: {id: id[0]['LAST_INSERT_ID()']}}).success (columns) ->
-      # LAST_INSERT_IDは最も最近に実行された INSERT 文の結果としてAUTO_INCREMENT
-      # カラムに正常に インサートされたカラムのIDを取得するが
-      # 正常にインサートされた値が無いとき、0を返す
-      # 確実な解決策：ALTER TABLE <テーブル名> AUTO_INCREMENT = 1;
-      if (columns?)
-        columns.destroy()
-        console.log 'delete SubmitQueue_table ------'
-      callBack(null, 11)
+removeQueue = (queueID, submitQueueTable, callBack) ->
+  submitQueueTable.find({where: {id: queueID}}).success (columns) ->
+    # LAST_INSERT_IDは最も最近に実行された INSERT 文の結果としてAUTO_INCREMENT
+    # カラムに正常に インサートされたカラムのIDを取得するが
+    # 正常にインサートされた値が無いとき、0を返す
+    # 確実な解決策：ALTER TABLE <テーブル名> AUTO_INCREMENT = 1;
+    if (columns?)
+      columns.destroy()
+      console.log 'delete SubmitQueue_table ------'
+    callBack(null, 11)
   .error (error) ->
     console.log "submit SubmitQueue_table err > #{error}"
 # removeQueue --------------
@@ -322,6 +322,7 @@ sendMsg = (req, res, callBack) ->
   res.send('200', obj)
   callBack(null, 12)
 # send_message end --------
+
 # kondoMethod -------------
 kondoMethod = (stdout, answer) ->
   stdout = replaceFullsizeChar(stdout)

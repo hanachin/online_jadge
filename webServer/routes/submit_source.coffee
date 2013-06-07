@@ -59,8 +59,8 @@ requestJadgeServer = (req, reqHttp, callBack) ->
   if (counter < max_connect)
     counter++
     requestJadge = reqHttp(options,  (res) ->
-      counter--
       console.log "StatusCode : #{res.statusCode}"
+      counter--
       res.setEncoding('utf8')
       res.on('data', (jadge_result) ->
         console.log "JadgeServer Response:  #{jadge_result}"

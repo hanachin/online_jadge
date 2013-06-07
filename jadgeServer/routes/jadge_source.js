@@ -17,6 +17,7 @@ exports.main = function(req, res, dataBase) {
   req.source = "";
   req.dir = "";
   req.dir_path = "";
+  req.queueID = "";
   req.argTestcase = [];
   req.argStdout = [];
   req.argAnswer = [];
@@ -48,7 +49,7 @@ exports.main = function(req, res, dataBase) {
     }, function(callBack) {
       return removeDir(req.questionNo, req.dir_path, child_process.exec, callBack);
     }, function(callBack) {
-      return removeQueue(seq, submitQueueTable, callBack);
+      return removeQueue(req.queueID, submitQueueTable, callBack);
     }, function(callBack) {
       return sendMsg(req, res, callBack);
     }
@@ -73,6 +74,7 @@ getQueueContents = function(req, seq, submitQueueTable, callBack) {
           id: id[0]['LAST_INSERT_ID()']
         }
       }).success(function(columns) {
+        req.queuID = columns.id;
         req.username = columns.userID;
         req.questionNo = columns.questionNo;
         req.source = columns.source;
@@ -308,21 +310,17 @@ removeDir = function(questionNo, path, exec, callBack) {
   return callBack(null, 10);
 };
 
-removeQueue = function(seq, submitQueueTable, callBack) {
-  var find_cmd;
-  find_cmd = 'SELECT LAST_INSERT_ID() from SubmitQueue_table;';
-  return seq.query(find_cmd).success(function(id) {
-    return submitQueueTable.find({
-      where: {
-        id: id[0]['LAST_INSERT_ID()']
-      }
-    }).success(function(columns) {
-      if ((columns != null)) {
-        columns.destroy();
-        console.log('delete SubmitQueue_table ------');
-      }
-      return callBack(null, 11);
-    });
+removeQueue = function(queueID, submitQueueTable, callBack) {
+  return submitQueueTable.find({
+    where: {
+      id: queueID
+    }
+  }).success(function(columns) {
+    if ((columns != null)) {
+      columns.destroy();
+      console.log('delete SubmitQueue_table ------');
+    }
+    return callBack(null, 11);
   }).error(function(error) {
     return console.log("submit SubmitQueue_table err > " + error);
   });

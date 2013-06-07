@@ -37,7 +37,14 @@ app.configure ->
     }
   )
   # 応答データの圧縮
-  app.use express.compress()
+  app.use express.compress(
+    level: 4
+    # memLevel: 4
+    # chunkSize: 16 * 1024
+    # windowsBits: 31
+    # strategy: 0
+    # filter: function(req, res){/* */}
+  )
   # upload 先の設置
   # bodyParser -> エラーが無ければ以下の3つを順に実行していく
   # content-type='apllication/json'->middleware/json.jsを使い.req.bodyにJSON.parse()の結果を付与
