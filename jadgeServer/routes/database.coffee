@@ -4,10 +4,9 @@ module.exports = (options) ->
   # databaseの定義を記述する
   # database名、ユーザ、パスワード、ホストネーム、ポート
   # ホストネームはサーバのip?
-  dbname = 'pxp_lab'
-  dbuser = 'root'
-  dbpass='29148931'
-  #dbpass = 'Passw0rd'
+  dbname = '****'
+  dbuser = '****'
+  dbpass = '****'
   hostname = 'localhost'
   portnum = 3306
 

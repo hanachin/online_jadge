@@ -2,7 +2,7 @@
 /* ------- Module dependencies. ---------------------------
 */
 
-var app, cluster, express, http, server;
+var app, cluster, express, http, new_worker_env, num_cpu, server, worker, workerID;
 
 express = require('express');
 
@@ -60,11 +60,22 @@ app.configure(function() {
 
 
 if (cluster.isMaster) {
+  num_cpu = require('os').cpus().length;
+  workerID = 0;
+  while (workerID < num_cpu) {
+    new_worker_env = {};
+    new_worker_env["WORKER_NAME"] = "worker" + workerID;
+    new_worker_env["WORKER_PORT"] = 3001 + workerID;
+    new_worker_env["WORKER_STATE"] = false;
+    worker = cluster.fork(new_worker_env);
+    workerID++;
+  }
+} else {
   http = require('http');
   server = http.createServer(app);
-  server.listen(app.get('port'), function() {
+  server.listen(process.env["WORKER_PORT"], function() {
     var database, database_root, timer_id;
-    console.log("Master Server listening on " + (app.get('port')));
+    console.log("Master Server listening on " + process.env["WORKER_PORT"]);
     database_root = "" + __dirname + "/routes/database";
     database = require(database_root)();
     return timer_id = setTimeout(function() {

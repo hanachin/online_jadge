@@ -35,6 +35,8 @@ exports.main = (req, res, dataBase) ->
 
   async.series([
     (callBack) ->
+      process.env["WORKER_STATE"] = true
+    (callBack) ->
       getQueueContents(req, seq, submitQueueTable, callBack)
     (callBack) ->
       replaceSource(req, req.source, callBack)
@@ -64,6 +66,7 @@ exports.main = (req, res, dataBase) ->
       throw err
       removeQueue(seq, submitQueueTable)
       res.send(500, err)
+    process.env["WORKER_STATE"] = false
     console.log "#{req.ip} -> submit all done. #{result}"
   )
 # main root end --------

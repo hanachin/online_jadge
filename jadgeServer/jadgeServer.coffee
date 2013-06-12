@@ -37,12 +37,21 @@ app.configure ->
 
 ### ------- create httpServer.------------------------------ ###
 if (cluster.isMaster)
+  num_cpu = require('os').cpus().length
+  workerID = 0
+  while (workerID < num_cpu)
+    new_worker_env = {}
+    new_worker_env["WORKER_NAME"] = "worker#{workerID}"
+    new_worker_env["WORKER_PORT"] = 3001 + workerID
+    new_worker_env["WORKER_STATE"] = false
+    worker = cluster.fork(new_worker_env)
+    workerID++
+else
   http = require 'http'
   server = http.createServer(app)
-
   # server listen
-  server.listen app.get('port'), ->
-    console.log "Master Server listening on #{app.get('port')}"
+  server.listen process.env["WORKER_PORT"], ->
+    console.log "Master Server listening on #{process.env["WORKER_PORT"]}"
 
     # database setup
     database_root = "#{__dirname}/routes/database"

@@ -3,9 +3,9 @@
 module.exports = function(options) {
   var columns, database, dbname, dbpass, dbuser, hostname, portnum, seq, seq_option, sequelize;
   sequelize = require('sequelize');
-  dbname = 'pxp_lab';
-  dbuser = 'root';
-  dbpass = '29148931';
+  dbname = '****';
+  dbuser = '****';
+  dbpass = '****';
   hostname = 'localhost';
   portnum = 3306;
   seq = new sequelize(dbname, dbuser, dbpass, {

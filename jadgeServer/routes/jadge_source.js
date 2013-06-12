@@ -28,6 +28,8 @@ exports.main = function(req, res, dataBase) {
   req.endTime = "";
   return async.series([
     function(callBack) {
+      return process.env["WORKER_STATE"] = true;
+    }, function(callBack) {
       return getQueueContents(req, seq, submitQueueTable, callBack);
     }, function(callBack) {
       return replaceSource(req, req.source, callBack);
@@ -59,6 +61,7 @@ exports.main = function(req, res, dataBase) {
       removeQueue(seq, submitQueueTable);
       res.send(500, err);
     }
+    process.env["WORKER_STATE"] = false;
     return console.log("" + req.ip + " -> submit all done. " + result);
   });
 };

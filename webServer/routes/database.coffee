@@ -5,11 +5,10 @@ module.exports = (options) ->
   # databaseの定義を記述する
   # database名、ユーザ、パスワード、ホストネーム、ポート
   # ホストネームはサーバのip?
-  dbname = 'pxp_lab'
-  dbuser = 'root'
-  dbpass='29148931'
-  #dbpass = 'Passw0rd'
-  hostname = 'localhost'
+  dbname = '****'
+  dbuser = '****'
+  dbpass='********'
+  hostname = '****'
   portnum = 3306
 
   seq = new sequelize(dbname, dbuser, dbpass, {
