@@ -5,6 +5,8 @@ app = express()
 ### ------- Module dependencies. --------------------------- ###
 
 ### ------- middleware call. ------------------------------- ###
+# configure中で直接LoggerやBodyParserの設定の値を書いてるので、すっきり見えない
+# 別途設定値を保持するクラスを用意したほうがよい(Facadeパターン的な)
 app.configure ->
   app.set 'port', 3000
   app.set 'views', "#{__dirname}/views"
@@ -39,6 +41,7 @@ app.configure ->
   # 応答データの圧縮
   app.use express.compress(
     level: 4
+    # ↓使わないならこれらの行を消す
     # memLevel: 4
     # chunkSize: 16 * 1024
     # windowsBits: 31
@@ -59,6 +62,7 @@ app.configure ->
   sessionstore = require('session-mongoose')(express)
   store = new sessionstore(
     url: "mongodb://localhost/lab_session"
+    #           ↓ 定数にしたい
     interval: 60 * 60 * 1000 * 24 # expiration check worker run interval in millisec (default: 60000)
   )
   app.use express.cookieParser('pxp_ss')

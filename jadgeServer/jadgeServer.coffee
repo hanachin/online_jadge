@@ -5,6 +5,13 @@ app = express()
 ### ------- Module dependencies. --------------------------- ###
 
 ### ------- middleware call. ------------------------------- ###
+# JudgeサーバーとWebサーバーでconfigが共通してるところありそうですね。
+# Configクラスに追い出さないと、2つのサーバーで、共通してる設定を、コピペすることになる。
+# 他で使いたいときに再利用もしづらいので、Configクラスつくって、それ使うようにしましょう。
+# Configクラス内にはcredentialな情報(パスワードとか)を直接書かないようにして
+# パスワードなどは、外部ファイルでconfig.ymlとかconfig.jsonを用意してそれを読むようにして
+# config.json.sampleで設定のサンプルだけリポジトリに入れるのがよさそう
+# ちょっと日本語アレになっててすみません＞＜
 app.configure ->
   app.set 'port', 3001
   # log ファイル 関係
@@ -13,7 +20,7 @@ app.configure ->
   log4js.configure(
     # ログファイルの出力先
     appenders: [
-      {'type': 'console'}
+      {'type': 'console'}                                                          # ↓謎の1024* 1024          ↓謎のフォーマット
       {'type': 'file', 'filename': "#{__dirname}/logs/pxp_lab.log", 'maxLogSize': 1024 * 1024, 'pattern': '-yyyy-MM-dd', 'category': 'console'}
     ]
     # stdoutへの出力を取得

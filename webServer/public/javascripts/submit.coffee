@@ -10,12 +10,17 @@ $(() ->
   $('#loadingerea').append(loadImg.canvas)
 
   $('#displaymodal').click(() ->
+    # Camelで
+    #    ↓C ↓Area
     sourcecodeErea.css('display', 'block')
     loadingErea.css('display', 'none')
     resultErea.css('display', 'none')
+    # ↓debug
     debag_mode.css('display', 'none')
     submit_mode.css('display', 'block')
   )
+
+  # ↑↓コピペだ＞＜ セレクタを、#displaymodal, #debagとかにすればよさげ?
 
   # ソースコードを見直すをクリックしたときの処理
   $('#debag').click(() ->
@@ -63,6 +68,7 @@ $(() ->
       resultErea.css('display', 'block')
 
       switch (result)
+        #    ↓()いらないです
         when ('Accept')
           displayresult = """
             <h1 style='font-family: times new roman; font-size: 100px; padding: 80px; line-height: 85px;'>#{result}</h1>

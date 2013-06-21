@@ -6,6 +6,7 @@ exports.main = (req, res, dataBase) ->
 
   # user info ------------
   # 複数のファイルをアップロードする場合は、こいつを回してあげればいい.
+  # このtmpファイルって処理の途中で消えたりしないです?
   tmp_path = req.files.uploads[0].path
   target_path = "#{__dirname}/../public/uploaded/Question/#{req.files.uploads[0].name}"
   filename = req.files.uploads[0].name

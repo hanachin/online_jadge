@@ -88,10 +88,13 @@ checkJadgeServer = (req, reqHttp, callBack, jadgeServerID) ->
 # requestJadgeServer -------
 # jadgeServerの管理Table true -> 使用中 false -> 未使用
 # 今借りているサクラのサーバだと2つまでしか立ち上げられない
+# サーバーの台数増えたらここ書き換えないといけないんですか?
 serverTable = [false, false]
 requestJadgeServer = (req, reqHttp, callBack) ->
   # 未使用のjadgeServerを見つけて、リクエストを送信する
   # 全てのJadgeServerが使用済みだった場合、1秒後にこの関数を呼び出す
+
+  # for in使おう＞＜
   i = 0
   while (i < serverTable.length)
     if (serverTable[i] is false)

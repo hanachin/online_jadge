@@ -1,3 +1,6 @@
+// ここにコメント書いたらエラーなる気がするけど書いちゃった。
+// nodeのバージョンを、engineで指定しておいて欲しいです＞＜
+// どのバージョンのnodeで動くのか分からないので
 {
   "name": "pxp-OnlineJadge-JadgeServer",
   "version": "0.0.1",

@@ -1,4 +1,5 @@
 # HTMLのtemplate一覧
+# 名前空間分けたほうがよさそう
 TABLE_TMP = '''
   <table class="table table-bordered" style="padding: 20px; width: 1030px; margin: auto; margin-top: 15px;">
     <tbody id="list">
@@ -21,14 +22,17 @@ WA_TMP = '''
   <span style="margin-left: 1em;">未提出</span>
 '''
 
+# ↓この()いらない
 $(() ->
   if (document.cookie.length isnt '')
     cookies = document.cookie.split(';')
+    # for in＞＜
     i = 0
     len = cookies.length
     while (i < len)
       parse = cookies[i].split('=')
       # クッキーの名前をキーとして 配列に追加する
+      # _(underscore)などのライブラリつかうとここらへんすっきり書けそうです
       cookies[parse[0]] = decodeURIComponent(parse[1])
       i++
     get_question(cookies['gradeNo'], cookies[' lessonNo'])
@@ -49,6 +53,7 @@ get_question = (gradeNo, lessonNo) ->
 
     # Ajax通信
     # サーバから問題一覧を取得する
+    # 通信する部分クラスに分けておいたほうがいいと思う
     $.ajax(
       url  : "/get_questions"
       type : "get"
@@ -80,6 +85,7 @@ get_question = (gradeNo, lessonNo) ->
           state = WA_TMP
 
         # tableに挿入するリストを作成する
+        # クライアントサイドでもJSのテンプレートエンジン(Handlebarsとか_.templateとかejsとかecoとか)使ったほうがよさそう
         content = """
           <tr data-href="/coding?questionNo=#{obj.questionNo}" class="clickable">
             <td>

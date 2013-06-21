@@ -27,6 +27,13 @@ module.exports = (option) ->
     }
   )
 
+  # require('モジュール名').main(req, res, dataBase)
+  # してるの非常に多いので、DRYに書きたいですね。
+  # app.post '/select', withDatabase(require './login')
+  # みたいな。
+  # withDatabase = (module) ->  (req, res, next) -> module.main(req, res, dataBase)
+  # こんな感じ? まぁNodeわからないので試してないしうまくいくかわかりませんが＞＜
+  # 関数名も微妙な感じするので、ちょっとアレですが、まぁなんていうかまとめられそうな気がします。
   app.post('/select', (req, res, next) ->
     postLogininfo = require './login'
     postLogininfo.main(req, res, dataBase)

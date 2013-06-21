@@ -2,6 +2,9 @@ module.exports = (options) ->
 
   sequelize = require 'sequelize'
 
+  # Configクラス作ってそこに追い出しましょう。
+  # ソース直接いじらないといけないのだるいです。
+  #
   # databaseの定義を記述する
   # database名、ユーザ、パスワード、ホストネーム、ポート
   # ホストネームはサーバのip?
