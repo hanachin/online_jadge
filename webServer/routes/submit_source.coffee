@@ -52,17 +52,17 @@ insertQueue = (username, questionNo, source, submitQueueTable, callBack) ->
 ## checkJudgeServer -------
 ###
 httpリクエスト投げすぎるとsocket hung up ?というエラーが起きるのでひとまずコメントアウト
-checkJudgeServer = (req, reqHttp, callBack, jadgeServerID) ->
+checkJudgeServer = (req, reqHttp, callBack, judgeServerID) ->
   # チェックした結果すべてのジャッジサーバが作業中の場合、１秒待ったあとに再度この関数を実行する
   cpu_num = require('os').cpus().length
-  if (jadgeServerID > 3001 + cpu_num - 1)
+  if (judgeServerID > 3001 + cpu_num - 1)
     setTimeout(checkJudgeServer, 1000, req, reqHttp, callBack, 0)
     return
 
   # リクエスト先の設定
   options = {
     hostname : 'localhost'
-    port     : "#{3001 + jadgeServerID}"
+    port     : "#{3001 + judgeServerID}"
     path     : '/check_judge'
   }
 
@@ -72,13 +72,13 @@ checkJudgeServer = (req, reqHttp, callBack, jadgeServerID) ->
   requestCheck = reqHttp(options,  (res) ->
     console.log "StatusCode : #{res.statusCode}"
     res.on('data', (check_result) ->
-      console.log "JadgeServer #{jadgeServerID} check Response:  #{res}"
+      console.log "JudgeServer #{judgeServerID} check Response:  #{res}"
       if (check_result is true)
-        req.jadgeServerID = jadgeServerID
+        req.judgeServerID = judgeServerID
         callBack(null, 2)
         return
       else
-        checkJudgeServer(req, reqHttp, callBack, jadgeServerID + 1)
+        checkJudgeServer(req, reqHttp, callBack, judgeServerID + 1)
     )
   ).on('error', (error) ->
     console.log "check err #{error}"
@@ -86,12 +86,12 @@ checkJudgeServer = (req, reqHttp, callBack, jadgeServerID) ->
 ###
 # end checkJudgeServer -----
 # requestJudgeServer -------
-# jadgeServerの管理Table true -> 使用中 false -> 未使用
+# judgeServerの管理Table true -> 使用中 false -> 未使用
 # 今借りているサクラのサーバだと2つまでしか立ち上げられない
 serverTable = [false, false]
 requestJudgeServer = (req, reqHttp, callBack) ->
-  # 未使用のjadgeServerを見つけて、リクエストを送信する
-  # 全てのJadgeServerが使用済みだった場合、1秒後にこの関数を呼び出す
+  # 未使用のjudgeServerを見つけて、リクエストを送信する
+  # 全てのJudgeServerが使用済みだった場合、1秒後にこの関数を呼び出す
   i = 0
   while (i < serverTable.length)
     if (serverTable[i] is false)
@@ -111,7 +111,7 @@ requestJudgeServer = (req, reqHttp, callBack) ->
         console.log "StatusCode : #{res.statusCode}"
         res.setEncoding('utf8')
         res.on('data', (jadge_result) ->
-          console.log "JadgeServer Response:  #{jadge_result}"
+          console.log "JudgeServer Response:  #{jadge_result}"
           req.result = jadge_result
           callBack(null, 2)
           return

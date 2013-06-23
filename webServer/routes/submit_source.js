@@ -48,17 +48,17 @@ insertQueue = function(username, questionNo, source, submitQueueTable, callBack)
 
 /*
 httpリクエスト投げすぎるとsocket hung up ?というエラーが起きるのでひとまずコメントアウト
-checkJudgeServer = (req, reqHttp, callBack, jadgeServerID) ->
+checkJudgeServer = (req, reqHttp, callBack, judgeServerID) ->
   # チェックした結果すべてのジャッジサーバが作業中の場合、１秒待ったあとに再度この関数を実行する
   cpu_num = require('os').cpus().length
-  if (jadgeServerID > 3001 + cpu_num - 1)
+  if (judgeServerID > 3001 + cpu_num - 1)
     setTimeout(checkJudgeServer, 1000, req, reqHttp, callBack, 0)
     return
 
   # リクエスト先の設定
   options = {
     hostname : 'localhost'
-    port     : "#{3001 + jadgeServerID}"
+    port     : "#{3001 + judgeServerID}"
     path     : '/check_judge'
   }
 
@@ -68,13 +68,13 @@ checkJudgeServer = (req, reqHttp, callBack, jadgeServerID) ->
   requestCheck = reqHttp(options,  (res) ->
     console.log "StatusCode : #{res.statusCode}"
     res.on('data', (check_result) ->
-      console.log "JadgeServer #{jadgeServerID} check Response:  #{res}"
+      console.log "JudgeServer #{judgeServerID} check Response:  #{res}"
       if (check_result is true)
-        req.jadgeServerID = jadgeServerID
+        req.judgeServerID = judgeServerID
         callBack(null, 2)
         return
       else
-        checkJudgeServer(req, reqHttp, callBack, jadgeServerID + 1)
+        checkJudgeServer(req, reqHttp, callBack, judgeServerID + 1)
     )
   ).on('error', (error) ->
     console.log "check err #{error}"
@@ -101,7 +101,7 @@ requestJudgeServer = function(req, reqHttp, callBack) {
         console.log("StatusCode : " + res.statusCode);
         res.setEncoding('utf8');
         return res.on('data', function(jadge_result) {
-          console.log("JadgeServer Response:  " + jadge_result);
+          console.log("JudgeServer Response:  " + jadge_result);
           req.result = jadge_result;
           callBack(null, 2);
         }).on('error', function(error) {
