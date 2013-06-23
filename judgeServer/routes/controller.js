@@ -9,7 +9,7 @@ module.exports = function(option) {
     checkJudge = require('./check_judge');
     return checkJudge.main(req, res);
   });
-  app.get('/request_jadge', function(req, res, next) {
+  app.get('/request_judge', function(req, res, next) {
     var jadge;
     jadge = require('./jadge_source');
     return jadge.main(req, res, dataBase);

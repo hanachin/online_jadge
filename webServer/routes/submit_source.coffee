@@ -23,16 +23,16 @@ exports.main = (req, res, dataBase) ->
       # checkJudgeServer(req, callBack, 0)
       callBack(null, 2)
     (callBack) ->
-      requestJadgeServer(req, http.get, callBack)
+      requestJudgeServer(req, http.get, callBack)
     (callBack) ->
       resJadgeResult(req, res, callBack)
   ], (err, result) ->
     if (err)
       throw err
       res.redirect '/'
-    console.log "requestJadgeServer all done. #{result}"
+    console.log "requestJudgeServer all done. #{result}"
   )
-  console.log "requestJadgeServer ---------- #{ip_address}"
+  console.log "requestJudgeServer ---------- #{ip_address}"
 # main root end --------
 # insertQueue -------------
 insertQueue = (username, questionNo, source, submitQueueTable, callBack) ->
@@ -85,11 +85,11 @@ checkJudgeServer = (req, reqHttp, callBack, jadgeServerID) ->
   )
 ###
 # end checkJudgeServer -----
-# requestJadgeServer -------
+# requestJudgeServer -------
 # jadgeServerの管理Table true -> 使用中 false -> 未使用
 # 今借りているサクラのサーバだと2つまでしか立ち上げられない
 serverTable = [false, false]
-requestJadgeServer = (req, reqHttp, callBack) ->
+requestJudgeServer = (req, reqHttp, callBack) ->
   # 未使用のjadgeServerを見つけて、リクエストを送信する
   # 全てのJadgeServerが使用済みだった場合、1秒後にこの関数を呼び出す
   i = 0
@@ -100,12 +100,12 @@ requestJadgeServer = (req, reqHttp, callBack) ->
       options = {
         hostname : 'localhost'
         port     : 3001 + i
-        path     : '/request_jadge'
+        path     : '/request_judge'
       }
       # httpリクエストを送信する
       # ここで？たまに502エラーが起こっている模様（確認できていない
       # ジャッジサーバからのレスポンス：jsonオブジェクトを受け取る
-      requestJadge = reqHttp(options,  (res) ->
+      requestJudge = reqHttp(options,  (res) ->
         serverTable[i] = false
         console.log "request Server #{3001 + i}"
         console.log "StatusCode : #{res.statusCode}"
@@ -121,8 +121,8 @@ requestJadgeServer = (req, reqHttp, callBack) ->
       )
       return
     i++
-  setTimeout(requestJadgeServer, 1000, req, reqHttp, callBack)
-# end requestJadgeServer -----
+  setTimeout(requestJudgeServer, 1000, req, reqHttp, callBack)
+# end requestJudgeServer -----
 # resJadgeResult -------------
 resJadgeResult = (req, res, callBack) ->
   res.json req.result
