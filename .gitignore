@@ -1,8 +1,8 @@
 .DS_Store
 webServer/logs/
-jadgeServer/logs/
+judgeServer/logs/
 webServer/tmp/
-jadgeServer/node_modules/
+judgeServer/node_modules/
 webServer/node_modules/
 *~
 *.swp
