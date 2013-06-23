@@ -17,8 +17,8 @@ module.exports = (option) ->
     checkJudge.main(req, res)
 
   app.get '/request_judge', (req, res, next) ->
-    jadge = require './judge_source'
-    jadge.main(req, res, dataBase)
+    judge = require './judge_source'
+    judge.main(req, res, dataBase)
 
   # ready msg ----------------------
   return "controller is setup"

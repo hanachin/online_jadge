@@ -10,9 +10,9 @@ module.exports = function(option) {
     return checkJudge.main(req, res);
   });
   app.get('/request_judge', function(req, res, next) {
-    var jadge;
-    jadge = require('./judge_source');
-    return jadge.main(req, res, dataBase);
+    var judge;
+    judge = require('./judge_source');
+    return judge.main(req, res, dataBase);
   });
   return "controller is setup";
 };
