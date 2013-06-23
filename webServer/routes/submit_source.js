@@ -48,18 +48,18 @@ insertQueue = function(username, questionNo, source, submitQueueTable, callBack)
 
 /*
 httpリクエスト投げすぎるとsocket hung up ?というエラーが起きるのでひとまずコメントアウト
-checkJadgeServer = (req, reqHttp, callBack, jadgeServerID) ->
+checkJudgeServer = (req, reqHttp, callBack, jadgeServerID) ->
   # チェックした結果すべてのジャッジサーバが作業中の場合、１秒待ったあとに再度この関数を実行する
   cpu_num = require('os').cpus().length
   if (jadgeServerID > 3001 + cpu_num - 1)
-    setTimeout(checkJadgeServer, 1000, req, reqHttp, callBack, 0)
+    setTimeout(checkJudgeServer, 1000, req, reqHttp, callBack, 0)
     return
 
   # リクエスト先の設定
   options = {
     hostname : 'localhost'
     port     : "#{3001 + jadgeServerID}"
-    path     : '/check_jadge'
+    path     : '/check_judge'
   }
 
   # httpリクエストを送信する
@@ -74,7 +74,7 @@ checkJadgeServer = (req, reqHttp, callBack, jadgeServerID) ->
         callBack(null, 2)
         return
       else
-        checkJadgeServer(req, reqHttp, callBack, jadgeServerID + 1)
+        checkJudgeServer(req, reqHttp, callBack, jadgeServerID + 1)
     )
   ).on('error', (error) ->
     console.log "check err #{error}"

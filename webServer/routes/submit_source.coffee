@@ -20,7 +20,7 @@ exports.main = (req, res, dataBase) ->
     (callBack) ->
       insertQueue(username, questionNo, source, submitQueueTable, callBack)
     (callBack) ->
-      # checkJadgeServer(req, callBack, 0)
+      # checkJudgeServer(req, callBack, 0)
       callBack(null, 2)
     (callBack) ->
       requestJadgeServer(req, http.get, callBack)
@@ -49,21 +49,21 @@ insertQueue = (username, questionNo, source, submitQueueTable, callBack) ->
   .error (error) ->
     console.log("submitQueueTable save Error >> #{error}")
 # insertQueue end ---------
-## checkJadgeServer -------
+## checkJudgeServer -------
 ###
 httpリクエスト投げすぎるとsocket hung up ?というエラーが起きるのでひとまずコメントアウト
-checkJadgeServer = (req, reqHttp, callBack, jadgeServerID) ->
+checkJudgeServer = (req, reqHttp, callBack, jadgeServerID) ->
   # チェックした結果すべてのジャッジサーバが作業中の場合、１秒待ったあとに再度この関数を実行する
   cpu_num = require('os').cpus().length
   if (jadgeServerID > 3001 + cpu_num - 1)
-    setTimeout(checkJadgeServer, 1000, req, reqHttp, callBack, 0)
+    setTimeout(checkJudgeServer, 1000, req, reqHttp, callBack, 0)
     return
 
   # リクエスト先の設定
   options = {
     hostname : 'localhost'
     port     : "#{3001 + jadgeServerID}"
-    path     : '/check_jadge'
+    path     : '/check_judge'
   }
 
   # httpリクエストを送信する
@@ -78,13 +78,13 @@ checkJadgeServer = (req, reqHttp, callBack, jadgeServerID) ->
         callBack(null, 2)
         return
       else
-        checkJadgeServer(req, reqHttp, callBack, jadgeServerID + 1)
+        checkJudgeServer(req, reqHttp, callBack, jadgeServerID + 1)
     )
   ).on('error', (error) ->
     console.log "check err #{error}"
   )
 ###
-# end checkJadgeServer -----
+# end checkJudgeServer -----
 # requestJadgeServer -------
 # jadgeServerの管理Table true -> 使用中 false -> 未使用
 # 今借りているサクラのサーバだと2つまでしか立ち上げられない

@@ -4,10 +4,10 @@ module.exports = function(option) {
   var app, database;
   app = option.app;
   database = option.dataBase;
-  app.get('/check_jadge', function(req, res, next) {
-    var checkJadge;
-    checkJadge = require('./check_jadge');
-    return checkJadge.main(req, res);
+  app.get('/check_judge', function(req, res, next) {
+    var checkJudge;
+    checkJudge = require('./check_judge');
+    return checkJudge.main(req, res);
   });
   app.get('/request_jadge', function(req, res, next) {
     var jadge;
