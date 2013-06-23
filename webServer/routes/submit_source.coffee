@@ -25,7 +25,7 @@ exports.main = (req, res, dataBase) ->
     (callBack) ->
       requestJudgeServer(req, http.get, callBack)
     (callBack) ->
-      resJadgeResult(req, res, callBack)
+      resJudgeResult(req, res, callBack)
   ], (err, result) ->
     if (err)
       throw err
@@ -110,9 +110,9 @@ requestJudgeServer = (req, reqHttp, callBack) ->
         console.log "request Server #{3001 + i}"
         console.log "StatusCode : #{res.statusCode}"
         res.setEncoding('utf8')
-        res.on('data', (jadge_result) ->
-          console.log "JudgeServer Response:  #{jadge_result}"
-          req.result = jadge_result
+        res.on('data', (judge_result) ->
+          console.log "JudgeServer Response:  #{judge_result}"
+          req.result = judge_result
           callBack(null, 2)
           return
         ).on('error', (error) ->
@@ -123,8 +123,8 @@ requestJudgeServer = (req, reqHttp, callBack) ->
     i++
   setTimeout(requestJudgeServer, 1000, req, reqHttp, callBack)
 # end requestJudgeServer -----
-# resJadgeResult -------------
-resJadgeResult = (req, res, callBack) ->
+# resJudgeResult -------------
+resJudgeResult = (req, res, callBack) ->
   res.json req.result
   callBack(null, 3)
-# resJadgeResult end ---------
+# resJudgeResult end ---------
