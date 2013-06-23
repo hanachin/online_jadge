@@ -17,7 +17,7 @@ module.exports = (option) ->
     checkJudge.main(req, res)
 
   app.get '/request_judge', (req, res, next) ->
-    jadge = require './jadge_source'
+    jadge = require './judge_source'
     jadge.main(req, res, dataBase)
 
   # ready msg ----------------------

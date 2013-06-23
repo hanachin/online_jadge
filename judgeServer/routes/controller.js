@@ -11,7 +11,7 @@ module.exports = function(option) {
   });
   app.get('/request_judge', function(req, res, next) {
     var jadge;
-    jadge = require('./jadge_source');
+    jadge = require('./judge_source');
     return jadge.main(req, res, dataBase);
   });
   return "controller is setup";
