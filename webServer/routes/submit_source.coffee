@@ -92,8 +92,7 @@ serverTable = [false, false]
 requestJudgeServer = (req, reqHttp, callBack) ->
   # 未使用のjudgeServerを見つけて、リクエストを送信する
   # 全てのJudgeServerが使用済みだった場合、1秒後にこの関数を呼び出す
-  i = 0
-  while (i < serverTable.length)
+  for _, i in serverTable
     if (serverTable[i] is false)
       serverTable[i] = true
       # リクエスト先の設定
@@ -120,7 +119,6 @@ requestJudgeServer = (req, reqHttp, callBack) ->
         )
       )
       return
-    i++
   setTimeout(requestJudgeServer, 1000, req, reqHttp, callBack)
 # end requestJudgeServer -----
 # resJudgeResult -------------
