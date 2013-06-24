@@ -1,5 +1,5 @@
 {
-  "name": "pxp-OnlineJadge-JadgeServer",
+  "name": "pxp-OnlineJudge-JudgeServer",
   "version": "0.0.1",
   "private": true,
   "scripts": {

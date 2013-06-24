@@ -12,13 +12,13 @@ module.exports = (option) ->
   # ------------------------------
   # rooting
   # ------------------------------
-  app.get '/check_jadge', (req, res, next) ->
-    checkJadge = require './check_jadge'
-    checkJadge.main(req, res)
+  app.get '/check_judge', (req, res, next) ->
+    checkJudge = require './check_judge'
+    checkJudge.main(req, res)
 
-  app.get '/request_jadge', (req, res, next) ->
-    jadge = require './jadge_source'
-    jadge.main(req, res, dataBase)
+  app.get '/request_judge', (req, res, next) ->
+    judge = require './judge_source'
+    judge.main(req, res, dataBase)
 
   # ready msg ----------------------
   return "controller is setup"
