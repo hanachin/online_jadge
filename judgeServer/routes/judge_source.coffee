@@ -126,16 +126,13 @@ writeSource = (questionNo, source, path, fswrite, callBack) ->
 # テストケースの書き出し
 writeTestcase = (req, questionNo, path, answerTable, fswrite, callBack) ->
   answerTable.findAll({where: {questionNo: questionNo}, order: 'id'}).success (columns) ->
-    if (columns[0]?)
-      i   = 0
-      len = columns.length
-      while (i < len)
-        testcase_path = "#{path}/#{questionNo}#{i}.txt"
-        fswrite(testcase_path, columns[i].testcase)
-        req.argTestcase[i]  = "#{questionNo}#{i}.txt"
-        req.argAnswer[i]    = columns[i].answer
-        console.log "fswrite_test -> #{path}"
-        i++
+    for column, i in columns
+      testcase_path = "#{path}/#{questionNo}#{i}.txt"
+      fswrite(testcase_path, column.testcase)
+      req.argTestcase[i] = "#{questionNo}#{i}.txt"
+      req.argAnswer[i]   = column.answer
+      console.log "fswrite_test -> #{path}"
+
     callBack(null, 5)
 # write_testcase end ---
 # compile_source -----
