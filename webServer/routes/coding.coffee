@@ -50,13 +50,9 @@ getExplanation = (req, questionNo, questionTable, callBack) ->
 # ---- getExamples -------------------------------------------
 getExamples = (req, questionNo, exampleTable, callBack) ->
   exampleTable.findAll(where: {questionNo: questionNo}).success((columns) ->
-    if (columns?)
-      i   = 0
-      len = columns.length
-      while (i < len)
-        req.argInput_ex[i]  = columns[i].input_ex.replace(/[ ]+/g, '')
-        req.argOutput_ex[i] = columns[i].output_ex.replace(/[ ]+/g, '')
-        i++
+    for column, i in columns
+      req.argInput_ex[i]  = column.input_ex.replace(/[ ]+/g, '')
+      req.argOutput_ex[i] = column.output_ex.replace(/[ ]+/g, '')
     callBack(null, 2)
   ).error((err) ->
     console.log "coding Example_table Err >> #{err}"
@@ -68,13 +64,10 @@ createExamples = (req, callBack) ->
   input_ex  = req.argInput_ex
   output_ex = req.argOutput_ex
 
-  i = 0
-  len = req.argInput_ex.length
-  while (i < len)
+  for i in [0...req.argInput_ex]
     pre_input  = "<td style='font-size:20px; width:50%; text-align:center;'><pre style='font-size: 16px; padding: 10px; line-height:25px;'>#{input_ex[i]}</pre></td>"
     pre_output = "<td style='font-size:20px; width:50%; text-align:center;'><pre style='font-size: 16px; padding: 10px; line-height:25px;'>#{output_ex[i]}</pre></td>"
     req.examples += "<tr>#{pre_input} #{line} #{pre_output}</tr>"
-    i++
   req.examples = "<table style='width:80%; margin:auto;'>#{req.examples}</table>"
   callBack(null, 3)
 # ---- createNextpage -----------------------------------------

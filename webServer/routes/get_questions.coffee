@@ -53,12 +53,8 @@ exports.main = (req, res, dataBase) ->
 # 問題リストの取得
 getQuestions = (req, gradeNo, lessonNo, questionTable, callBack) ->
   questionTable.findAll(where: {gradeNo: gradeNo, lessonNo: lessonNo}).success (columns) ->
-   if (columns[0]?)
-      i = 0
-      len = columns.length
-      while (i < len)
-        req.argQuestions[i] = columns[i].questionNo
-        i++
+    for column, i in columns
+      req.argQuestions[i] = column.questionNo
     callBack(null, 1)
   .error (err) ->
     console.log "select QuestionTable Err >> #{err}"
@@ -100,15 +96,12 @@ getUserCorrect = (req, username, argQuestions, submitTable, callBack, num) ->
 # createJSON -------------
 # jsonの作成
 createJSON = (req, callBack) ->
-  i = 0
-  len = req.argQuestions.length
-  while (i < len)
+  for i in [0...req.argQuestions.length]
     req.argResJSON[i] = {
       questionNo: req.argQuestions[i]
       correcters: req.argCorrecters[i]
       state: req.argStatus[i]
     }
-    i++
   callBack(null, 4)
 # createJSON end --------
 # response --------------
