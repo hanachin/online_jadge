@@ -412,22 +412,20 @@ skipTable = function(string) {
 };
 
 pulloutNumber = function(string) {
-  var decimal1, decimal2, i, len, number, _ref, _ref1, _ref2;
+  var c, decimal1, decimal2, i, number, _i, _len, _ref, _ref1;
 
-  i = 0;
-  len = string.length;
   number = '';
-  while (i < len) {
-    if (('0' <= (_ref = string[i]) && _ref <= '9')) {
-      number += string[i];
+  for (i = _i = 0, _len = string.length; _i < _len; i = ++_i) {
+    c = string[i];
+    if (('0' <= c && c <= '9')) {
+      number += c;
     }
-    if (string[i] === '.') {
-      decimal1 = (_ref1 = string[i + 1]) != null ? _ref1 : '0';
-      decimal2 = (_ref2 = string[i + 2]) != null ? _ref2 : '0';
+    if (c === '.') {
+      decimal1 = (_ref = string[i + 1]) != null ? _ref : '0';
+      decimal2 = (_ref1 = string[i + 2]) != null ? _ref1 : '0';
       number += decimal1 + decimal2;
       break;
     }
-    i++;
   }
   return number;
 };

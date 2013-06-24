@@ -373,17 +373,14 @@ skipTable = (string) ->
 pulloutNumber = (string) ->
   # プログラムの解答から小数を抜き出す
   # 数値が少ない場合は自動的に小数第二位まで0詰め
-  i = 0
-  len = string.length
   number = ''
-  while (i < len)
-    if ('0' <= string[i] <= '9')
-      number += string[i]
-    if (string[i] is '.')
+  for c, i in string
+    if ('0' <= c <= '9')
+      number += c
+    if (c is '.')
       decimal1 = string[i + 1] ? '0'
       decimal2 = string[i + 2] ? '0'
       number += decimal1 + decimal2
       break
-    i++
   return number
 # pulloutDecimal ---------
