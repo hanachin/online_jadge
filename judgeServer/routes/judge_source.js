@@ -232,7 +232,7 @@ executeError = function(num, error) {
 };
 
 compareSource = function(req, callBack) {
-  var answer, i, kondo_check, len, result, stdout;
+  var ans, answer, i, kondo_check, result, stdout, _i, _len;
 
   stdout = req.argStdout;
   answer = req.argAnswer;
@@ -242,11 +242,10 @@ compareSource = function(req, callBack) {
   if (result !== '') {
     console.log("" + req.ip + " result error : " + result);
   } else {
-    i = 0;
-    len = answer.length;
-    while (i < len) {
-      if (stdout[i] !== answer[i]) {
-        kondo_check = kondoMethod(stdout[i], answer[i]);
+    for (i = _i = 0, _len = answer.length; _i < _len; i = ++_i) {
+      ans = answer[i];
+      if (stdout[i] !== ans) {
+        kondo_check = kondoMethod(stdout[i], ans);
         console.log("kondo_check: " + kondo_check);
         if (kondo_check === true) {
           req.result = "Accept";
@@ -257,7 +256,6 @@ compareSource = function(req, callBack) {
       } else {
         req.result = "Accept";
       }
-      i++;
     }
   }
   return callBack(null, 8);

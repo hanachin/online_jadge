@@ -229,11 +229,9 @@ compareSource = (req, callBack) ->
   if (result isnt '')
     console.log "#{req.ip} result error : #{result}"
   else
-    i = 0
-    len = answer.length
-    while (i < len)
-      if (stdout[i] isnt answer[i])
-        kondo_check = kondoMethod(stdout[i], answer[i])
+    for ans, i in answer
+      if (stdout[i] isnt ans)
+        kondo_check = kondoMethod(stdout[i], ans)
         console.log "kondo_check: #{kondo_check}"
         if (kondo_check is true)
           req.result = "Accept"
@@ -242,7 +240,6 @@ compareSource = (req, callBack) ->
           break
       else
         req.result = "Accept"
-      i++
   callBack(null, 8)
 # get_correct end ---------
 # saveResult ------------
