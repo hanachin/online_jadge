@@ -31,17 +31,13 @@ exports.main = (req, res, dataBase) ->
 # 送信された問題の履歴を作成する
 getSubmits = (req, submitTable, callBack) ->
   submitTable.findAll({order: "time DESC", limit: 100}).success (columns) ->
-    if (columns?)
-      i = 0
-      len = columns.length
-      while (i < len)
-        req.ranking[i] = {
-          questionNo  : columns[i].questionNo
-          userID      : columns[i].userID
-          result      : columns[i].result
-          time        : columns[i].time
-        }
-        i++
+    for column, rank in columns
+      req.ranking[rank] = {
+        questionNo  : column.questionNo
+        userID      : column.userID
+        result      : column.result
+        time        : column.time
+      }
     callBack(null, 1)
   .error (error) ->
     console.log "submitTable err > #{error}"

@@ -24,13 +24,10 @@ WA_TMP = '''
 $(() ->
   if (document.cookie.length isnt '')
     cookies = document.cookie.split(';')
-    i = 0
-    len = cookies.length
-    while (i < len)
-      parse = cookies[i].split('=')
+    for c in cookies
+      parse = c.split('=')
       # クッキーの名前をキーとして 配列に追加する
       cookies[parse[0]] = decodeURIComponent(parse[1])
-      i++
     get_question(cookies['gradeNo'], cookies[' lessonNo'])
 
   $('select').change () ->

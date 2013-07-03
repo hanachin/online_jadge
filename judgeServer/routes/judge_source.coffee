@@ -126,16 +126,13 @@ writeSource = (questionNo, source, path, fswrite, callBack) ->
 # テストケースの書き出し
 writeTestcase = (req, questionNo, path, answerTable, fswrite, callBack) ->
   answerTable.findAll({where: {questionNo: questionNo}, order: 'id'}).success (columns) ->
-    if (columns[0]?)
-      i   = 0
-      len = columns.length
-      while (i < len)
-        testcase_path = "#{path}/#{questionNo}#{i}.txt"
-        fswrite(testcase_path, columns[i].testcase)
-        req.argTestcase[i]  = "#{questionNo}#{i}.txt"
-        req.argAnswer[i]    = columns[i].answer
-        console.log "fswrite_test -> #{path}"
-        i++
+    for column, i in columns
+      testcase_path = "#{path}/#{questionNo}#{i}.txt"
+      fswrite(testcase_path, column.testcase)
+      req.argTestcase[i] = "#{questionNo}#{i}.txt"
+      req.argAnswer[i]   = column.answer
+      console.log "fswrite_test -> #{path}"
+
     callBack(null, 5)
 # write_testcase end ---
 # compile_source -----
@@ -232,11 +229,9 @@ compareSource = (req, callBack) ->
   if (result isnt '')
     console.log "#{req.ip} result error : #{result}"
   else
-    i = 0
-    len = answer.length
-    while (i < len)
-      if (stdout[i] isnt answer[i])
-        kondo_check = kondoMethod(stdout[i], answer[i])
+    for ans, i in answer
+      if (stdout[i] isnt ans)
+        kondo_check = kondoMethod(stdout[i], ans)
         console.log "kondo_check: #{kondo_check}"
         if (kondo_check is true)
           req.result = "Accept"
@@ -245,7 +240,6 @@ compareSource = (req, callBack) ->
           break
       else
         req.result = "Accept"
-      i++
   callBack(null, 8)
 # get_correct end ---------
 # saveResult ------------
@@ -379,17 +373,14 @@ skipTable = (string) ->
 pulloutNumber = (string) ->
   # プログラムの解答から小数を抜き出す
   # 数値が少ない場合は自動的に小数第二位まで0詰め
-  i = 0
-  len = string.length
   number = ''
-  while (i < len)
-    if ('0' <= string[i] <= '9')
-      number += string[i]
-    if (string[i] is '.')
+  for c, i in string
+    if ('0' <= c <= '9')
+      number += c
+    if (c is '.')
       decimal1 = string[i + 1] ? '0'
       decimal2 = string[i + 2] ? '0'
       number += decimal1 + decimal2
       break
-    i++
   return number
 # pulloutDecimal ---------
