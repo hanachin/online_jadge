@@ -1,6 +1,6 @@
 exports.setup = (app, http, sio) ->
   socketServer = http.createServer(app)
-  exports.socketio = sio.listen(socketServer)
+  exports.socketio = sio.listen(socketServer, {'log level' : 2})
   socketServer.listen(8080)
 
   exports.socketio.configure () ->
