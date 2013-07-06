@@ -2,7 +2,7 @@
 /* ------- Module dependencies. ---------------------------
 */
 
-var app, cluster, express, http, new_worker_env, num_cpu, server, worker, workerID, _i;
+var app, cluster, express, http, new_worker_env, num_cpu, server, worker, workerID;
 
 express = require('express');
 
@@ -62,12 +62,14 @@ app.configure(function() {
 
 if (cluster.isMaster) {
   num_cpu = require('os').cpus().length;
-  for (workerID = _i = 0; 0 <= num_cpu ? _i < num_cpu : _i > num_cpu; workerID = 0 <= num_cpu ? ++_i : --_i) {
+  workerID = 0;
+  while (workerID < num_cpu) {
     new_worker_env = {};
     new_worker_env["WORKER_NAME"] = "worker" + workerID;
     new_worker_env["WORKER_PORT"] = 3001 + workerID;
     new_worker_env["WORKER_STATE"] = false;
     worker = cluster.fork(new_worker_env);
+    workerID++;
   }
 } else {
   http = require('http');

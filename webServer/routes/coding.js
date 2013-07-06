@@ -59,10 +59,12 @@ getExamples = function(req, questionNo, exampleTable, callBack) {
   }).success(function(columns) {
     var column, i, _i, _len;
 
-    for (i = _i = 0, _len = columns.length; _i < _len; i = ++_i) {
-      column = columns[i];
-      req.argInput_ex[i] = column.input_ex.replace(/[ ]+/g, '');
-      req.argOutput_ex[i] = column.output_ex.replace(/[ ]+/g, '');
+    if ((columns != null)) {
+      for (i = _i = 0, _len = columns.length; _i < _len; i = ++_i) {
+        column = columns[i];
+        req.argInput_ex[i] = column.input_ex.replace(/[ ]+/g, '');
+        req.argOutput_ex[i] = column.output_ex.replace(/[ ]+/g, '');
+      }
     }
     return callBack(null, 2);
   }).error(function(err) {
@@ -73,10 +75,10 @@ getExamples = function(req, questionNo, exampleTable, callBack) {
 createExamples = function(req, callBack) {
   var i, input_ex, line, output_ex, pre_input, pre_output, _i, _ref;
 
-  line = '<td style="width:8%; text-align:center;"> -----> </td>';
+  line = '<td style="width:8%; text-align:center;"> -----&gt; </td>';
   input_ex = req.argInput_ex;
   output_ex = req.argOutput_ex;
-  for (i = _i = 0, _ref = req.argInput_ex; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
+  for (i = _i = 0, _ref = input_ex.length; 0 <= _ref ? _i < _ref : _i > _ref; i = 0 <= _ref ? ++_i : --_i) {
     pre_input = "<td style='font-size:20px; width:50%; text-align:center;'><pre style='font-size: 16px; padding: 10px; line-height:25px;'>" + input_ex[i] + "</pre></td>";
     pre_output = "<td style='font-size:20px; width:50%; text-align:center;'><pre style='font-size: 16px; padding: 10px; line-height:25px;'>" + output_ex[i] + "</pre></td>";
     req.examples += "<tr>" + pre_input + " " + line + " " + pre_output + "</tr>";

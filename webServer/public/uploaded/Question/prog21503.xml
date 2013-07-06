@@ -1,0 +1,66 @@
+<?xml version="1.0"?>
+<data>
+<question_no>prog21503.c</question_no>
+<grade_no>2</grade_no>
+<lesson_no>15</lesson_no>
+<question_info>
+  <question>
+    <explanation>
+    整数型のグローバル変数 x,y の合計を整数型のグローバル変数 z に格納する関数 add を作成して、プログラムを完成しなさい。
+    関数 add の呼び出し形式は void add(void) とする。
+    main 関数は以下の通り。
+    <pre>
+    int main(void)
+    {
+      printf(&quot;整数1=&quot;);
+      scanf(&quot;%d&quot;, &amp;x);
+      printf(&quot;整数1=&quot;);
+      scanf(&quot;%d&quot;, &amp;y);
+      add();
+      printf(&quot;%d + %d = %d\n&quot;, x, y, z);
+      return (0);
+    }
+    </pre>
+    </explanation>
+    <exsample>
+      <input_ex>
+      整数1=5
+      整数2=3
+      </input_ex>
+      <output_ex>
+      5+3=8
+      </output_ex>
+      <input_ex>
+      整数1=15
+      整数2=3
+      </input_ex>
+      <output_ex>
+      15+3=18
+      </output_ex>
+    </exsample>
+  </question>
+  <testcase>
+    <input>
+    10
+    10
+    </input>
+    <output>
+    整数1=整数2=10+10=20
+    </output>
+    <input>
+    1
+    1
+    </input>
+    <output>
+    整数1=整数2=1+1=2
+    </output>
+    <input>
+    3
+    10
+    </input>
+    <output>
+    整数1=整数2=3+10=13
+    </output>
+  </testcase>
+</question_info>
+</data>

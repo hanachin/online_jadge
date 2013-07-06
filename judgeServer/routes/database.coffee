@@ -4,11 +4,11 @@ module.exports = (options) ->
   # databaseの定義を記述する
   # database名、ユーザ、パスワード、ホストネーム、ポート
   # ホストネームはサーバのip?
-  dbname = '****'
-  dbuser = '****'
-  dbpass = '****'
+  dbname = '*****'
+  dbuser = '*****'
+  dbpass = '*****'
   hostname = 'localhost'
-  portnum = 3306
+  portnum = ****
 
   seq = new sequelize(dbname, dbuser, dbpass, {
     host: hostname
@@ -47,7 +47,7 @@ module.exports = (options) ->
 
   # SubmitQueue_table
   columns = {
-    id:{type: sequelize.INTEGER, primaryKey: true}
+    id: {type: sequelize.INTEGER, primaryKey: true}
     questionNo: type: sequelize.STRING
     userID: sequelize.STRING
     source: sequelize.TEXT

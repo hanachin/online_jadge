@@ -1,0 +1,62 @@
+<?xml version="1.0"?>
+<data>
+<question_no>prog21508.c</question_no>
+<grade_no>2</grade_no>
+<lesson_no>15</lesson_no>
+<question_info>
+  <question>
+    <explanation>
+    char 型の配列を引数とし引数の配列に
+    文字列を入力する関数【void str_input2(char str[])】と、char 型の配列を2つ引数とし2つの配列に格納された文字列を連結して
+    グローバル変数 str(要素数40のchar型の配列)に格納する関数【void str_add(char str1[], char str2[])】 を作成しなさい。
+    文字列操作関数を使用すること。
+    main 関数は以下の通り。
+    <pre>
+    int main(void)
+    {
+      char str1[20];
+      char str2[20];
+
+      str_input2(str1);
+      str_input2(str2);
+      str_add(str1, str2);
+      printf(&quot;連結文字列=%s\n&quot;, str);
+      return (0);
+    }
+    </pre>
+    </explanation>
+    <exsample>
+      <input_ex>
+      文字列=ABC
+      文字列=abc
+      </input_ex>
+      <output_ex>
+      連結文字列=ABCabc
+      </output_ex>
+    </exsample>
+  </question>
+  <testcase>
+    <input>
+    kazehara
+    Ikemen
+    </input>
+    <output>
+    文字列=文字列=kazeharaIkemen
+    </output>
+    <input>
+    kimini
+    TODOKE
+    </input>
+    <output>
+    文字列=文字列=kiminiTODOKE
+    </output>
+    <input>
+    iphone
+    BOROBORO
+    </input>
+    <output>
+    文字列=文字列=iphoneBOROBORO
+    </output>
+  </testcase>
+</question_info>
+</data>

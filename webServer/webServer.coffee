@@ -1,111 +1,141 @@
-### ------- Module dependencies. --------------------------- ###
+### ------- Module dependencies. ------------ ###
 express = require 'express'
 cluster = require 'cluster'
+engine  = require 'ejs-locals'
+log4js  = require 'crafity-log4js'
+http = require 'http'
+sio  = require 'socket.io'
 app = express()
-### ------- Module dependencies. --------------------------- ###
 
-### ------- middleware call. ------------------------------- ###
+### ------- Class --------------------------- ###
+class AppConfig
+  # 一時ファイルの保存ディレクトリ
+  _tmpdir = "#{__dirname}/tmp"
+  # ファイル名に拡張子を残すか
+  _keepExtention = true
+  @port   = 3000
+  @views  = "#{__dirname}/views"
+  @public = "#{__dirname}/public"
+  @engine = "ejs"
+  @upload = {
+    uploadDir        : _tmpdir
+    isKeepExtensions : _keepExtention
+  }
+
+class LogConfig
+  @log      = "#{__dirname}/logs/"
+  @filename = "#{@log}/pxp_log"
+  @size   = 1024 * 1024
+  @format = '-yyyy-MM-dd'
+  # stdoutへの出力を取得
+  @stdout = false
+  @nolog  = [ '\\.css', '\\.js', '\\.gif', '\\.jpg', '\\.png' ]
+  @format = JSON.stringify {
+      'method'     : ':method'
+      'request'    : ':url'
+      'status'     : ':status'
+      'user-agent' : ':user-agent'
+    }
+
+class SessionConfig
+  _sessionstore = require('session-mongoose')(express)
+  _path = 'mongodb://localhost/lab_session'
+  # trueにするとJavascriptなどからアクセスできなくなる
+  _access = false
+  # millisec (default: 60000)
+  _interval = 60 * 60 * 1000 * 24
+  _limit  = new Date(Date.now() + _interval)
+  @secret = 'pxp_ss'
+  # 60 * 60 * 1000 = 3600000 msec = 1 hour (設定しないとブラウザを終了したときにsessionも切れる
+  @store  = new _sessionstore(
+    url      : _path
+    interval : _interval
+  )
+  @cookie = {
+    httpOnly  : _access
+    maxAge    : _limit
+  }
+
+### ------- middleware ------------------------ ###
+# expressの公式に起動の順番に注意とある
+# 順番どおりに起動している
 app.configure ->
-  app.set 'port', 3000
-  app.set 'views', "#{__dirname}/views"
-  # template enngine
-  engine = require 'ejs-locals'
+  app.set 'port', AppConfig.port
+  app.set 'views', AppConfig.views
   app.engine 'ejs', engine
-  app.set 'view engine', 'ejs'
+  app.set 'view engine', AppConfig.engine
   app.use express.favicon()
-  # log ファイル 関係
-  log4js = require 'crafity-log4js'
+
+  # log -----------------------
   logger = log4js.getLogger 'file'
   log4js.configure(
-    # ログファイルの出力先
-    appenders: [
+    appenders : [
       {'type': 'console'}
-      {'type': 'file', 'filename': "#{__dirname}/logs/pxp_lab.log", 'maxLogSize': 1024 * 1024, 'pattern': '-yyyy-MM-dd', 'category': 'console'}
+      {
+        'type'       : 'file'
+        'filename'   : LogConfig.filename
+        'maxLogSize' : LogConfig.size
+        'pattern'    : LogConfig.format
+        'category'   : 'console'
+      }
     ]
-    # stdoutへの出力を取得
-    replaceConsole: true
+    replaceConsole : LogConfig.stdout
   )
-  app.use log4js.connectLogger(logger,
-     # アクセスログを出力する際に無視する拡張子
-    nolog: [ '\\css', '\\.js', '\\.gif', '\\.jpg', '\\.png' ],
-     # アクセスログのフォーマット（JSON 形式）
-    format: JSON.stringify {
-      'method': ':method'
-      'request': ':url'
-      'status': ':status'
-      'user-agent': ':user-agent'
-    }
-  )
+  app.use log4js.connectLogger logger, {
+    nolog  : LogConfig.nolog
+    format : LogConfig.format
+  }
+
   # 応答データの圧縮
-  app.use express.compress(
-    level: 4
-    # memLevel: 4
-    # chunkSize: 16 * 1024
-    # windowsBits: 31
-    # strategy: 0
-    # filter: function(req, res){/* */}
-  )
+  app.use express.compress()
+
   # upload 先の設置
-  # bodyParser -> エラーが無ければ以下の3つを順に実行していく
+  # 4Parser -> エラーが無ければ以下の3つを順に実行していく
   # content-type='apllication/json'->middleware/json.jsを使い.req.bodyにJSON.parse()の結果を付与
   # content-type='application/x-www-form-urlencoded'->req.bodyにテキストの一般的なWebFormの入力値を付与
   # content-type='multipart/form-data'->middleware/multipart.jsを使いreq.body, req.files に結果が付与
-  bodyParserOptions = {
-    uploadDir: "#{__dirname}/tmp"
-    isKeepExtensions: true
-  }
-  app.use express.bodyParser(bodyParserOptions)
-  # session 管理 関係
-  sessionstore = require('session-mongoose')(express)
-  store = new sessionstore(
-    url: "mongodb://localhost/lab_session"
-    interval: 60 * 60 * 1000 * 24 # expiration check worker run interval in millisec (default: 60000)
-  )
-  app.use express.cookieParser('pxp_ss')
+  # postのリクエスト処理
+  app.use express.bodyParser AppConfig.upload
+
+  # session -------------------
+  app.use express.cookieParser SessionConfig.secret
   app.use express.session(
-    # cookie にはいっている sessionId の値が、自分のサーバで設定されたものであることを保証している
-    secret: 'pxp_ss'
-    store: store
-    cookie: {
-      # trueにするとJavascriptなどからアクセスできなくなる
-      httpOnly: true,
-      # 60 * 60 * 1000 = 3600000 msec = 1 hour (設定しないとブラウザを終了したときにsessionも切れる
-      maxAge: new Date(Date.now() + 60 * 60 * 1000 * 24)
-    }
+    secret : SessionConfig.secret
+    store  : SessionConfig.store
+    cookie : SessionConfig.cookie
   )
   app.use express.methodOverride()
-  app.use express.static("#{__dirname}/public")
-  console.log "configure opption"
-### ------- middleware call. ------------------------------- ###
+  app.use express.static AppConfig.public
+  return console.log "app opption setup."
 
-### ------- create httpServer.------------------------------ ###
+### ------- create httpServer.----------------- ###
 if (cluster.isMaster)
-  http = require 'http'
   server = http.createServer(app)
-
-  # server listen
+  # app server listen
+  # 起動順序に注意
+  # database -> socketServerのsetup
+  # socketServerの設定をした後にcontrollerのsetup
   server.listen app.get('port'), ->
     console.log "Master Server listening on #{app.get('port')}"
-
     # database setup
     database_root = "#{__dirname}/routes/database"
     database = require(database_root)()
 
-    # rooting start
-    # databaseを設定した後にcontrollerのsetup
-    # controllerの設定をした後にsocket_moduleのsetup
+    # socketio setup
+    socketServer = require "#{__dirname}/routes/socket_server"
+    console.log "#{socketServer.setup(app, http, sio)}"
+
+    # controller setup
     timer_id = setTimeout(
       ->
-        controller_root = "#{__dirname}/routes/controller"
-        console.log "#{require(controller_root)(app: app, database: database)}"
+        controller    = "#{__dirname}/routes/controller"
+        console.log "#{require(controller)(app: app, database: database)}"
       100
     )
-### ------- create httpServer.------------------------------ ###
 
 ### ------- Error. ----------------------------------------- ###
-# nodeがERRによって落ちないようにする
+# nodeがERRによって突然死しないようにする
 process.on 'uncaughtException', (err) ->
   console.log "err >  #{err}"
   console.error "uncaughtException >  #{err.stack}"
-### ------- Error. ---------- ------------------------------ ###
 

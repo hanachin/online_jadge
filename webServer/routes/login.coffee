@@ -21,8 +21,7 @@ exports.main = (req, res, database) ->
   )
 
   console.log "login ---------- #{ip_address}"
-# ---- end main ----------------------------------------------
-#
+
 # ---- variableChek ------------------------------------------
 variableCheck = (res, username, password, callBack) ->
   # usernameとpasswordをちゃんと入力しているか確認する
@@ -33,18 +32,18 @@ variableCheck = (res, username, password, callBack) ->
   else
     # usernameかpasswordが入力されていなかったときの処理
     res.redirect('/')
-# ---- variableChek ------------------------------------------
+
 # ---- userChek ----------------------------------------------
 userCheck = (req, res, username, password, userTable, callBack) ->
   # User_tableからusernameで探索
   # パスワードが一致するか調べる
   userTable.find(
-    where: {
-      userID: username
+    where : {
+      userID : username
     }
-  ).success (columns) ->
+  ).success (column) ->
     # usernameが見つかったらcolumnsがnullになる
-    if (columns? and password is columns.password)
+    if (column? and password is column.password)
       req.session.username = username
       req.session.loginflag = true
       # 次のasyncへジャンプする
@@ -55,13 +54,12 @@ userCheck = (req, res, username, password, userTable, callBack) ->
   .error (err) ->
     console.log "login User_table err >> #{err}"
     res.redirect('/')
-# ---- userChek ----------------------------------------------
+
 # ---- getNextpage -------------------------------------------
 getNextpage = (req, res, callBack) ->
   if (req.session.loginflag)
     res.redirect '/select'
   else
-    res.redirect('/')
+    res.redirect '/'
   # 次のasyncへジャンプする
   callBack(null, 3)
-# ---- getNextpage -------------------------------------------

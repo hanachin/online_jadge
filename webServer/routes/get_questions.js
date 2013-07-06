@@ -54,9 +54,11 @@ getQuestions = function(req, gradeNo, lessonNo, questionTable, callBack) {
   }).success(function(columns) {
     var column, i, _i, _len;
 
-    for (i = _i = 0, _len = columns.length; _i < _len; i = ++_i) {
-      column = columns[i];
-      req.argQuestions[i] = column.questionNo;
+    if ((columns[0] != null)) {
+      for (i = _i = 0, _len = columns.length; _i < _len; i = ++_i) {
+        column = columns[i];
+        req.argQuestions[i] = column.questionNo;
+      }
     }
     return callBack(null, 1);
   }).error(function(err) {
@@ -77,7 +79,6 @@ getCorrecters = function(req, username, argQuestions, seq, callBack, num) {
   }).success(function(columns) {
     if ((columns != null)) {
       req.argCorrecters[num] = columns.length;
-      console.log(req.argCorrecters[num]);
     } else {
       req.argCorrecters[num] = 0;
     }

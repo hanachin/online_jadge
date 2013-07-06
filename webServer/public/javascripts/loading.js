@@ -1,5 +1,4 @@
-var loadImg = new Sonic({
-
+var loadIcon = new Sonic({
   width: 100,
   height: 100,
   padding: 180,
@@ -38,6 +37,4 @@ var loadImg = new Sonic({
 
 });
 
-loadImg.play();
-
-
+loadIcon.play();

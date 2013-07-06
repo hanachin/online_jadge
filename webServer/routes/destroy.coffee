@@ -1,19 +1,12 @@
 # ---- main --------------------------------------------------
 exports.main = (req, res) ->
   async = require 'async'
-  time = 100
 
   async.series([
-    (callback) ->
-      destroy_session(req)
-      setTimeout(() ->
-        callback(null, 1)
-      , time)
-    (callback) ->
-      rooting(req, res)
-      setTimeout(() ->
-        callback(null, 2)
-      , time)
+    (callBack) ->
+      destroySession(req, callBack)
+    (callBack) ->
+      getNextPage(req, res, callBack)
   ], (err, result) ->
     if (err)
       throw err
@@ -23,11 +16,13 @@ exports.main = (req, res) ->
 # ---- end main ----------------------------------------------
 
 # ---- login -------------------------------------------------
-destroy_session = (req) ->
+destroySession = (req, callBack) ->
   req.session.destroy()
+  callBack(null, 1)
 # ---- end login ----------------------------------------------
 
 # ---- rooting ------------------------------------------------
-rooting = (req, res) ->
+getNextPage = (req, res, callBack) ->
   res.redirect '/'
+  callBack(null, 2)
 # ---- rooting end --------------------------------------------

@@ -1,5 +1,4 @@
 module.exports = (options) ->
-
   sequelize = require 'sequelize'
 
   # databaseの定義を記述する
@@ -7,9 +6,9 @@ module.exports = (options) ->
   # ホストネームはサーバのip?
   dbname = '****'
   dbuser = '****'
-  dbpass='********'
-  hostname = '****'
-  portnum = 3306
+  dbpass = '****'
+  hostname = 'localhost'
+  portnum = ****
 
   seq = new sequelize(dbname, dbuser, dbpass, {
     host: hostname
@@ -61,7 +60,7 @@ module.exports = (options) ->
     input_ex: sequelize.TEXT
     output_ex: sequelize.TEXT
   }
-  database.exampleTable = seq.define('Example_Table', columns, seq_option)
+  database.exampleTable = seq.define('Example_table', columns, seq_option)
 
   # Answer_table
   columns = {
@@ -73,7 +72,8 @@ module.exports = (options) ->
 
   # SubmitQueue_table
   columns = {
-    questionNo: {type: sequelize.STRING, primaryKey: true}
+    id:{type: sequelize.INTEGER, primaryKey: true}
+    questionNo: sequelize.STRING
     userID: sequelize.STRING
     source: sequelize.TEXT
   }

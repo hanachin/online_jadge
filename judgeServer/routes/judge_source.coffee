@@ -1,3 +1,26 @@
+class DateFormat
+  _digits = (digits, n) ->
+    if "#{n}".length >= digits
+      "#{n}"
+    else
+      pad = digits - "#{n}".length
+      "#{(new Array(pad + 1)).join("0")}#{n}"
+
+  constructor : () ->
+    @date = new Date()
+
+  toString : () ->
+    year  = @date.getFullYear()
+    month = _digits 2, @date.getMonth() + 1
+    d  = _digits 2, @date.getDate()
+    hour  = _digits 2, @date.getHours()
+    min   = _digits 2, @date.getMinutes()
+    sec   = _digits 2, @date.getSeconds()
+    "#{year}/#{month}/#{d} #{hour}:#{min}:#{sec}"
+
+  @format: () ->
+    "#{new DateFormat}"
+
 # main root -----------
 exports.main = (req, res, dataBase) ->
   # module ------------
@@ -15,141 +38,120 @@ exports.main = (req, res, dataBase) ->
   submitQueueTable = dataBase.submitQueueTable
   # database --------
 
-  req.username   = ""
-  req.questionNo = ""
-  req.source     = ""
-  req.dir        = ""
-  req.dir_path   = ""
-  req.queueID    = ""
+  req.username      = req.query.username
+  req.questionNo    = req.query.questionNo
+  req.source        = req.query.source
   req.argTestcase   = []
   req.argStdout     = []
   req.argAnswer     = []
   req.compile_error = ""
   req.stderr     = ""
   req.result     = ""
-
-  # time -----------
-  req.startTime = getTimestamp()
-  req.endTime = ""
-  # time -----------
+  req.dir        = "#{req.socket._idleStart}-#{req.username}"
+  req.dir_path   = "#{__dirname}/../public/source/#{req.dir}"
 
   async.series([
     (callBack) ->
-      process.env["WORKER_STATE"] = true
-    (callBack) ->
-      getQueueContents(req, seq, submitQueueTable, callBack)
-    (callBack) ->
+      console.log "user 1st ---------------------------------------"
+      console.log "replaceSource - #{DateFormat.format()}"
+      console.log "workerID -> #{process.env["WORKER_PORT"]}"
       replaceSource(req, req.source, callBack)
     (callBack) ->
+      console.log "makeDir - #{DateFormat.format()}"
       makeDir(req.dir_path, fs.mkdir, callBack)
     (callBack) ->
+      console.log "writeSource - #{DateFormat.format()}"
       writeSource(req.questionNo, req.source, req.dir_path, fs.writeFile, callBack)
     (callBack) ->
+      console.log "writeTestcase - #{DateFormat.format()}"
       writeTestcase(req, req.questionNo, req.dir_path, answerTable, fs.writeFileSync, callBack)
     (callBack) ->
+      console.log "compileSource - #{DateFormat.format()}"
       compileSource(req, req.questionNo, req.dir_path, child_process.exec, callBack)
     (callBack) ->
+      console.log "executeSource - #{DateFormat.format()}"
       executeSource(req, req.questionNo, req.dir_path, child_process.exec, callBack)
-   (callBack) ->
+    (callBack) ->
+      console.log "compareSource - #{DateFormat.format()}"
       compareSource(req, callBack)
     (callBack) ->
-      req.endTime = getTimestamp()
+      console.log "saveResult - #{DateFormat.format()}"
       saveResult(req, req.questionNo, req.username, req.source, submitTable, correcterTable, callBack)
     (callBack) ->
+      console.log "removeDir - #{DateFormat.format()}"
       removeDir(req.questionNo, req.dir_path, child_process.exec, callBack)
     (callBack) ->
-      removeQueue(req.queueID, submitQueueTable, callBack)
-    (callBack) ->
+      console.log "sendMsg - #{DateFormat.format()}"
       sendMsg(req, res, callBack)
   ], (err, result) ->
     if (err)
       throw err
-      removeQueue(seq, submitQueueTable)
       res.send(500, err)
     process.env["WORKER_STATE"] = false
-    console.log "#{req.ip} -> submit all done. #{result}"
+    console.log "request end - #{DateFormat.format()}"
+    console.log "end user 1st ---------------------------------------"
   )
 # main root end --------
-# getSubmitQueue ---------
-getQueueContents = (req, seq, submitQueueTable, callBack) ->
-  lock_cmd = '''
-    UPDATE SubmitQueue_table SET id=LAST_INSERT_ID(id),
-    locked_until=NOW() + INTERVAL 5 SECOND
-    WHERE locked_until < NOW() ORDER BY id LIMIT 1;
-  '''
-  find_cmd = 'SELECT LAST_INSERT_ID();'
-
-  seq.query(lock_cmd).success () ->
-    seq.query(find_cmd).success (id) ->
-      submitQueueTable.find({where: {id: id[0]['LAST_INSERT_ID()']}}).success (columns) ->
-        req.queuID     = columns.id
-        req.username   = columns.userID
-        req.questionNo = columns.questionNo
-        req.source     = columns.source
-        req.dir        = "#{req.socket._idleStart}-#{req.username}"
-        req.dir_path   = "#{__dirname}/../public/source/#{req.dir}"
-        callBack(null, 1)
-  .error (error) ->
-    console.log "submit SubmitQueue_table err > #{error}"
-
-# getSubmitQueue ---------
 # replaceSource ----------
 # 文字の置換（今のところは改行コードのみ
 replaceSource = (req, source, callBack) ->
   #  キャリッジリターンの削除
   req.source = source.replace(/\r\n/g, '\n')
   callBack(null, 2)
-# replace_cr end ------
+
 # makeDir -------------
 # 作業用ディレクトリの作成
 makeDir = (path, mkdir, callBack) ->
-  mkdir(path, '0777', (err) ->
+  mkdir path, '0777', (err) ->
     if (err)
       console.log "#{path} make_dir err -> #{err}"
       return
-    console.log "mkdir -> #{path}"
+    #console.log "mkdir -> #{path}"
     callBack(null, 3)
-  )
-# makeDir end ----------
+
 # writeSource --------
 # プログラムを書き出す
 writeSource = (questionNo, source, path, fswrite, callBack) ->
-  fswrite("#{path}/#{questionNo}.c", source, (err) ->
+  fswrite "#{path}/#{questionNo}.c", source, (err) ->
     if (err)
       console.log "#{path} fswrite error -> #{err}"
       return
-    console.log "fswrite -> #{path}"
+    #console.log "fswrite -> #{path}"
     callBack(null, 4)
-  )
-# writeSource end -----
+
 # writeTestcase -----
 # テストケースの書き出し
 writeTestcase = (req, questionNo, path, answerTable, fswrite, callBack) ->
-  answerTable.findAll({where: {questionNo: questionNo}, order: 'id'}).success (columns) ->
-    for column, i in columns
-      testcase_path = "#{path}/#{questionNo}#{i}.txt"
-      fswrite(testcase_path, column.testcase)
-      req.argTestcase[i] = "#{questionNo}#{i}.txt"
-      req.argAnswer[i]   = column.answer
-      console.log "fswrite_test -> #{path}"
-
+  answerTable.findAll(
+    where : {
+      questionNo : questionNo
+    }
+    order : 'id'
+  ).success (columns) ->
+    if (columns[0]?)
+      for column, i in columns
+        if (column.testcase isnt '')
+          testcase_path = "#{path}/#{questionNo}#{i}.txt"
+          req.argTestcase[i]  = "#{questionNo}#{i}.txt"
+          fswrite(testcase_path, column.testcase)
+        req.argAnswer[i]    = column.answer
+        #console.log "fswrite_test -> #{path}"
     callBack(null, 5)
-# write_testcase end ---
+
 # compile_source -----
 # プログラムのコンパイル
 compileSource = (req, questionNo, path, exec, callBack) ->
-  exec("gcc -Wall -o #{path}/#{questionNo}.out #{path}/#{questionNo}.c", (error, stdout, stderr) ->
+  exec "gcc -Wall -o #{path}/#{questionNo}.out #{path}/#{questionNo}.c", (err, stdout, stderr) ->
   # stdoutもerrorもほとんど同じ error -> command failedが出るとか
-    if (error)
+    if (err)
       req.result = 'Compile Error'
-      error = new String(error)
-      tmp   = new RegExp(req.dir_path, 'g')
-      req.compile_error = error.replace(tmp, '')
-      console.log "Compile Error -> #{error}"
-    console.log "#{path} -> compile!"
+      err = new String(err)
+      tmp = new RegExp(req.dir_path, 'g')
+      req.compile_error = err.replace(tmp, '')
+      console.log "Compile Error -> #{err}"
+      #console.log "#{path} -> compile!"
     callBack(null, 6)
-  )
-# compile_source end ----------
+
 # execute_source --------------
 # プログラムの実行をさせる
 executeSource = (req, questionNo, path, exec, callBack) ->
@@ -160,23 +162,26 @@ executeSource = (req, questionNo, path, exec, callBack) ->
     inputExecute(req, questionNo, path, exec, callBack, 0)
     return
   noinputExecute(req, questionNo, path, exec, callBack, 0)
-# execute_source end ---------
+
 # noinput_execute ------------
 # 入力のないプログラムの実行
 noinputExecute = (req, questionNo, path, exec, callBack, num) ->
   exePath = "#{path}/#{questionNo}.out"
-  exec(exePath, {timeout: 3000, maxBuffer: 65536}, (error, stdout, stderr) ->
-      if (error)
-        error = new String(error)
-        tmp   = new RegExp(req.dir_path, 'g')
-        req.stderr = error.replace(tmp, '')
-        req.result = executeError(num, error)
-        callBack(null, 7)
-        return
+  exec exePath, {
+    timeout: 3000
+    maxBuffer: 65536
+  }, (err, stdout, stderr) ->
+    if (err)
+      err = new String(err)
+      tmp   = new RegExp(req.dir_path, 'g')
+      req.stderr = err.replace(tmp, '')
+      req.result = executeError(num, err)
+      callBack(null, 7)
+      return
+
     req.argStdout[num] = stdout.replace(/\r\n$/, '')
     callBack(null, 7)
-  )
-# noinput_execute end ------
+
 # input_execute ------------
 # 入力のあるプログラムの実行
 inputExecute = (req, questionNo, path, exec, callBack, num) ->
@@ -191,23 +196,25 @@ inputExecute = (req, questionNo, path, exec, callBack, num) ->
   # maxBuffer:default -> 200 * 1024
   # timeout:default ->  0
   # killSignal: default -> 'SIGTERM'
-  exec(cmd, {timeout: 3000, maxBuffer: 65536}, (error, stdout, stderr) ->
-    if (error)
-      error = new String(error)
+  exec cmd, {
+    timeout: 3000
+    maxBuffer: 65536
+  }, (err, stdout, stderr) ->
+    if (err)
+      err = new String(err)
       tmp   = new RegExp(req.dir_path, 'g')
-      req.stderr = error.replace(tmp, '')
-      req.result = executeError(num, error)
+      req.stderr = err.replace(tmp, '')
+      req.result = executeError(num, err)
       callBack(null, 7)
       return
 
     req.argStdout[num] = stdout.replace(/\r?\n$/, '')
     inputExecute(req, questionNo, path, exec, callBack, num + 1)
-  )
-# input_execute end ------
+
 # error_signal -----------------------
 # プログラムの実行結果から、エラーコードを割り振る
-executeError = (num, error) ->
-  signal = error.toString()
+executeError = (num, err) ->
+  signal = err.toString()
   if (0 < signal.indexOf('maxBuffer'))
     return 'Segmentation Fault'
 
@@ -215,23 +222,24 @@ executeError = (num, error) ->
     return 'Time Limit Exceeded'
 
   return "不明なエラーです"
-# error_signal end ------------------
+
 # compareSource ---------------------
 # 実行結果の比較
 compareSource = (req, callBack) ->
-  stdout = req.argStdout
-  answer = req.argAnswer
+  stdouts = req.argStdout
+  answers = req.argAnswer
   result = req.result
 
-  console.log stdout
-  console.log answer
+  console.log "実行結果 + 解答"
+  console.log stdouts
+  console.log answers
 
   if (result isnt '')
-    console.log "#{req.ip} result error : #{result}"
+    console.log "#{req.ip} result err : #{result}"
   else
-    for ans, i in answer
-      if (stdout[i] isnt ans)
-        kondo_check = kondoMethod(stdout[i], ans)
+    for answer, i in answers
+      if (stdout[i] isnt answer)
+        kondo_check = kondoMethod(stdout[i], answer)
         console.log "kondo_check: #{kondo_check}"
         if (kondo_check is true)
           req.result = "Accept"
@@ -241,76 +249,35 @@ compareSource = (req, callBack) ->
       else
         req.result = "Accept"
   callBack(null, 8)
-# get_correct end ---------
+
 # saveResult ------------
 # データベースへプログラムを格納
 saveResult = (req, questionNo, username, source, submitTable, correcterTable, callBack) ->
-  time = getTimestamp()
   insert_obj = {
     userID      : username
     questionNo  : questionNo
     source      : source
-    time        : time
+    time        : DateFormat.format()
     result      : req.result
   }
   saveData = submitTable.build(insert_obj)
   saveData.save().success () ->
-    console.log('DB save success')
+    console.log 'DB save success'
     callBack(null, 9)
-# saveResult end ---------
-# getTimestamp -----------
-# 年月日・曜日・時分秒の取得
-getTimestamp = () ->
-  d     = new Date()
-  year  = d.getFullYear()
-  month = d.getMonth() + 1
-  day   = d.getDate()
-  hour  = d.getHours()
-  minute = d.getMinutes()
-  second = d.getSeconds()
 
-  # 1桁を2桁に変換する
-  month = '0' + month if (month < 10)
-  day   = '0' + day if (day < 10)
-  hour  = '0' + hour if (hour < 10)
-  minute = '0' + minute if (minute < 10)
-  second = '0' + second if (second < 10)
-  time   = "#{year}-#{month}-#{day} #{hour}:#{minute}:#{second}"
-  return time
-# getTimestamp end ---------
 # remove_dir --------------
 # 作業ファイルの削除
 removeDir = (questionNo, path, exec, callBack) ->
   cmd = "rm -rf #{path}/"
-  exec(cmd, {}, (error, stdout, stderr) ->
-    if (error)
-      console.log "rm error -> #{error}"
+  exec(cmd, {}, (err, stdout, stderr) ->
+    if (err)
+      console.log "rm error -> #{err}"
   )
   callBack(null, 10)
-# remove_dir end ----------
-# removeQueue -------------
-# キューの削除
-removeQueue = (queueID, submitQueueTable, callBack) ->
-  submitQueueTable.find({where: {id: queueID}}).success (columns) ->
-    # LAST_INSERT_IDは最も最近に実行された INSERT 文の結果としてAUTO_INCREMENT
-    # カラムに正常に インサートされたカラムのIDを取得するが
-    # 正常にインサートされた値が無いとき、0を返す
-    # 確実な解決策：ALTER TABLE <テーブル名> AUTO_INCREMENT = 1;
-    if (columns?)
-      columns.destroy()
-      console.log 'delete SubmitQueue_table ------'
-    callBack(null, 11)
-  .error (error) ->
-    console.log "submit SubmitQueue_table err > #{error}"
-# removeQueue --------------
+
 # send_message -------------
 # 結果の送信
 sendMsg = (req, res, callBack) ->
- # 結果を送信した時間の表示
-  startTime = req.startTime
-  endTime = getTimestamp()
-  console.log "#{req.ip} -> start:#{startTime} - #{endTime}"
-
   obj = {
     cmperr : req.compile_error
     stderr : req.stderr
@@ -318,7 +285,6 @@ sendMsg = (req, res, callBack) ->
   }
   res.send('200', obj)
   callBack(null, 12)
-# send_message end --------
 
 # kondoMethod -------------
 kondoMethod = (stdout, answer) ->
@@ -347,28 +313,23 @@ kondoMethod = (stdout, answer) ->
 # replaceFullsizeChar ----
 replaceFullsizeChar = (string) ->
   # 全角文字 -> 半角文字
-  translation = string.replace(/[！-～]/g, (str) ->
+  translation = string.replace /[！-～]/g, (str) ->
     return String.fromCharCode(str.charCodeAt(0) - 0xFEE0)
-  )
-  return translation
-# replaceFullsizeChar ----
+
 # toUpper ----------------
 toUpper = (string) ->
   # 小文字 -> 大文字に変換
   translation = string.toUpperCase()
-  return translation
-# toUpper ----------------
+
 # replaceEqualsign -------
 replaceEqualsign = (string) ->
   translation = string.replace(/:/g, '=')
-  return translation
-# replaceEqualsign -------
+
 # skipTable --------------
 skipTable = (string) ->
   # スキップテーブル (空白を削除)
   translation = string.replace(/[ ]+/g, '')
-  return translation
-# skipTable --------------
+
 # pulloutDecimal ---------
 pulloutNumber = (string) ->
   # プログラムの解答から小数を抜き出す

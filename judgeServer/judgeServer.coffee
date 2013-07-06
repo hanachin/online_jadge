@@ -34,16 +34,17 @@ app.configure ->
   app.use express.static("#{__dirname}/public")
   console.log "configure opption"
 ### ------- middleware call. ------------------------------- ###
-
 ### ------- create httpServer.------------------------------ ###
 if (cluster.isMaster)
   num_cpu = require('os').cpus().length
-  for workerID in [0...num_cpu]
+  workerID = 0
+  while (workerID < num_cpu)
     new_worker_env = {}
-    new_worker_env["WORKER_NAME"]  = "worker#{workerID}"
-    new_worker_env["WORKER_PORT"]  = 3001 + workerID
+    new_worker_env["WORKER_NAME"] = "worker#{workerID}"
+    new_worker_env["WORKER_PORT"] = 3001 + workerID
     new_worker_env["WORKER_STATE"] = false
     worker = cluster.fork(new_worker_env)
+    workerID++
 else
   http = require 'http'
   server = http.createServer(app)

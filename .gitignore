@@ -6,3 +6,4 @@ judgeServer/node_modules/
 webServer/node_modules/
 *~
 *.swp
+*.js

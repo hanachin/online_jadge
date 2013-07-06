@@ -52,9 +52,15 @@ exports.main = (req, res, dataBase) ->
 # get_questions ----------
 # 問題リストの取得
 getQuestions = (req, gradeNo, lessonNo, questionTable, callBack) ->
-  questionTable.findAll(where: {gradeNo: gradeNo, lessonNo: lessonNo}).success (columns) ->
-    for column, i in columns
-      req.argQuestions[i] = column.questionNo
+  questionTable.findAll(
+    where : {
+      gradeNo : gradeNo
+      lessonNo: lessonNo
+    }
+  ).success (columns) ->
+    if (columns[0]?)
+      for column, i in columns
+        req.argQuestions[i] = column.questionNo
     callBack(null, 1)
   .error (err) ->
     console.log "select QuestionTable Err >> #{err}"
@@ -70,7 +76,6 @@ getCorrecters = (req, username, argQuestions, seq, callBack, num) ->
   seq.query(cmd, null, {raw: true}).success (columns) ->
     if (columns?)
       req.argCorrecters[num] = columns.length
-      console.log req.argCorrecters[num]
     else
       req.argCorrecters[num] = 0
     getCorrecters(req, username, argQuestions, seq, callBack, num + 1)
@@ -84,7 +89,13 @@ getUserCorrect = (req, username, argQuestions, submitTable, callBack, num) ->
     callBack(null, 3)
     return
 
-  submitTable.find(where: {userID: username, questionNo: argQuestions[num], result: 'Accept'}).success (columns) ->
+  submitTable.find(
+    where : {
+      userID : username
+      questionNo : argQuestions[num]
+      result : 'Accept'
+    }
+  ).success (columns) ->
     if (columns?)
       req.argStatus[num] = "AC"
     else
@@ -98,9 +109,9 @@ getUserCorrect = (req, username, argQuestions, submitTable, callBack, num) ->
 createJSON = (req, callBack) ->
   for i in [0...req.argQuestions.length]
     req.argResJSON[i] = {
-      questionNo: req.argQuestions[i]
-      correcters: req.argCorrecters[i]
-      state: req.argStatus[i]
+      questionNo : req.argQuestions[i]
+      correcters : req.argCorrecters[i]
+      state : req.argStatus[i]
     }
   callBack(null, 4)
 # createJSON end --------

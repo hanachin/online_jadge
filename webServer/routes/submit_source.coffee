@@ -1,128 +1,79 @@
 # main root -----------
-exports.main = (req, res, dataBase) ->
+exports.main = (data, socket, sio, dataBase) ->
   # module ------------
   async = require 'async'
   http  = require 'http'
-  # module end --------
 
   # user info -------------
-  username = req.session.username
-  questionNo = req.body.questionNo
-  source = req.body.source
-  ip_address = req.ip
-  # user info end --------
+  username = "test"
+  console.log username
+  console.log socket.handshake.session
+
+  questionNo = data.questionNo
+  source     = data.source
+  data.judgeServerID = ''
+  data.resultJSON = ''
 
   # database -------------
   submitQueueTable = dataBase.submitQueueTable
-  # database end ---------
 
   async.series([
     (callBack) ->
-      insertQueue(username, questionNo, source, submitQueueTable, callBack)
+      checkJudgeServer(data, callBack)
     (callBack) ->
-      # checkJudgeServer(req, callBack, 0)
-      callBack(null, 2)
+      requestJudgeServer(data, username, http.get, callBack)
     (callBack) ->
-      requestJudgeServer(req, http.get, callBack)
-    (callBack) ->
-      resJudgeResult(req, res, callBack)
+      resJudgeResult(data, sio, callBack)
   ], (err, result) ->
     if (err)
       throw err
       res.redirect '/'
     console.log "requestJudgeServer all done. #{result}"
   )
-  console.log "requestJudgeServer ---------- #{ip_address}"
-# main root end --------
-# insertQueue -------------
-insertQueue = (username, questionNo, source, submitQueueTable, callBack) ->
-  insert_obj = {
-    userID       :  username
-    questionNo   :  questionNo
-    source       :  source
-  }
-  saveData = submitQueueTable.build(insert_obj)
 
-  saveData.save().success () ->
-    console.log('submitQueueTable save success')
-    callBack(null, 1)
-  .error (error) ->
-    console.log("submitQueueTable save Error >> #{error}")
-# insertQueue end ---------
-## checkJudgeServer -------
-###
-httpリクエスト投げすぎるとsocket hung up ?というエラーが起きるのでひとまずコメントアウト
-checkJudgeServer = (req, reqHttp, callBack, judgeServerID) ->
-  # チェックした結果すべてのジャッジサーバが作業中の場合、１秒待ったあとに再度この関数を実行する
-  cpu_num = require('os').cpus().length
-  if (judgeServerID > 3001 + cpu_num - 1)
-    setTimeout(checkJudgeServer, 1000, req, reqHttp, callBack, 0)
-    return
+# checkJudgeServer ---------
+# judgeServerの管理Table true -> 使用中 false -> 未使用
+# 今借りているサクラのサーバだと2つまでしか立ち上げられない
+# judgeServerの管理テーブルみたいなものを作りたい
+judgeServerTable = [false, false]
+checkJudgeServer = (data, callBack) ->
+  # 空いているジャッジサーバを探索していく
+  for _, judgeID in judgeServerTable
+    if (judgeServerTable[judgeID] is false)
+      judgeServerTable[judgeID] = true
+      data.judgeServerID = judgeID
+      callBack(null, 1)
+      return
 
+# requestJudgeServer -------
+requestJudgeServer = (data, username, reqHttp, callBack) ->
+  # ポート番号の指定
+  req_port = 3001 + data.judgeServerID
   # リクエスト先の設定
   options = {
     hostname : 'localhost'
-    port     : "#{3001 + judgeServerID}"
-    path     : '/check_judge'
+    port     : req_port
+    path     : "/request_judge?username=#{username}&questionNo=#{data.questionNo}&source=#{data.source}"
   }
 
   # httpリクエストを送信する
-  # checkの結果 -> true：callBack関数を実行し、実際にジャッジを頼むリクエストを発行する
-  #             -> false：他のジャッジサーバが空いていないかチェックする
-  requestCheck = reqHttp(options,  (res) ->
+  # ジャッジサーバからのレスポンス：jsonオブジェクトを受け取る
+  requestJudge = reqHttp options,  (res) ->
+    console.log "request Server #{req_port}"
     console.log "StatusCode : #{res.statusCode}"
-    res.on('data', (check_result) ->
-      console.log "JudgeServer #{judgeServerID} check Response:  #{res}"
-      if (check_result is true)
-        req.judgeServerID = judgeServerID
-        callBack(null, 2)
-        return
-      else
-        checkJudgeServer(req, reqHttp, callBack, judgeServerID + 1)
-    )
-  ).on('error', (error) ->
-    console.log "check err #{error}"
-  )
-###
-# end checkJudgeServer -----
-# requestJudgeServer -------
-# judgeServerの管理Table true -> 使用中 false -> 未使用
-# 今借りているサクラのサーバだと2つまでしか立ち上げられない
-serverTable = [false, false]
-requestJudgeServer = (req, reqHttp, callBack) ->
-  # 未使用のjudgeServerを見つけて、リクエストを送信する
-  # 全てのJudgeServerが使用済みだった場合、1秒後にこの関数を呼び出す
-  for _, i in serverTable
-    if (serverTable[i] is false)
-      serverTable[i] = true
-      # リクエスト先の設定
-      options = {
-        hostname : 'localhost'
-        port     : 3001 + i
-        path     : '/request_judge'
-      }
-      # httpリクエストを送信する
-      # ここで？たまに502エラーが起こっている模様（確認できていない
-      # ジャッジサーバからのレスポンス：jsonオブジェクトを受け取る
-      requestJudge = reqHttp(options,  (res) ->
-        serverTable[i] = false
-        console.log "request Server #{3001 + i}"
-        console.log "StatusCode : #{res.statusCode}"
-        res.setEncoding('utf8')
-        res.on('data', (judge_result) ->
-          console.log "JudgeServer Response:  #{judge_result}"
-          req.result = judge_result
-          callBack(null, 2)
-          return
-        ).on('error', (error) ->
-          console.log "problem with request : #{error}"
-        )
-      )
+    res.setEncoding('utf8')
+    res.on 'data', (result) ->
+      console.log "JudgeServer Response:  #{result}"
+      data.result = result
+      # 使用していたjudgeServerを解放
+      judgeServerTable[data.judgeServerID] = false
+      callBack(null, 2)
       return
-  setTimeout(requestJudgeServer, 1000, req, reqHttp, callBack)
-# end requestJudgeServer -----
+    .on 'error', (err) ->
+      console.log "problem with request : #{err}"
+
 # resJudgeResult -------------
-resJudgeResult = (req, res, callBack) ->
-  res.json req.result
+resJudgeResult = (data, sio, callBack) ->
+  sio.sockets.emit 'result_judge', data.result
   callBack(null, 3)
-# resJudgeResult end ---------
+

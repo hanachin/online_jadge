@@ -1,14 +1,15 @@
 {
-  "name": "pxp-OnlineJudge-JudgeServer",
-  "version": "0.0.1",
+  "name": "pxp-OnlineJadge-JadgeServer",
+  "version": "v0.10.1",
   "private": true,
   "scripts": {
     "start": "node app"
   },
   "dependencies": {
     "express"      : "3.0.0rc2",
-    "ejs-locals"   : "*",
-    "async"	   : "*",
-    "crafity-log4js": "*"
+    "async"	       : "*",
+    "crafity-log4js : "*",
+    "mysql"     : "*",
+    "sequelize" : "*"
   }
 }
