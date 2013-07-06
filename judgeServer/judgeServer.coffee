@@ -1,39 +1,61 @@
-### ------- Module dependencies. --------------------------- ###
+ ## ------- Module dependencies. --------------------------- ###
 express = require 'express'
 cluster = require 'cluster'
+http = require 'http'
+
 app = express()
-### ------- Module dependencies. --------------------------- ###
+
+### ------- Class ------------------------------------------ ###
+class AppConfig
+  # 一時ファイルの保存ディレクトリ
+  _tmpdir = "#{__dirname}/tmp"
+  # ファイル名に拡張子を残すか
+  _keepExtention = true
+  @port   = 3001
+  @public = "#{__dirname}/public"
+
+class LogConfig
+  @log      = "#{__dirname}/logs/"
+  @filename = "#{@log}/pxp_log"
+  @size   = 1024 * 1024
+  @format = '-yyyy-MM-dd'
+  # stdoutへの出力を取得
+  @stdout = false
+  @nolog  = ['\\.js']
+  @format = JSON.stringify {
+      'method'     : ':method'
+      'request'    : ':url'
+      'status'     : ':status'
+      'user-agent' : ':user-agent'
+    }
 
 ### ------- middleware call. ------------------------------- ###
 app.configure ->
-  app.set 'port', 3001
   # log ファイル 関係
-  log4js = require 'crafity-log4js'
   logger = log4js.getLogger 'file'
   log4js.configure(
     # ログファイルの出力先
     appenders: [
-      {'type': 'console'}
-      {'type': 'file', 'filename': "#{__dirname}/logs/pxp_lab.log", 'maxLogSize': 1024 * 1024, 'pattern': '-yyyy-MM-dd', 'category': 'console'}
+      {'type' : 'console'}
+      {
+        'type'       : 'file'
+        'filename'   : LogConfig.filename
+        'maxLogSize' : LogConfig.size
+        'pattern'    : LogConfig.format
+        'category'   : 'console'
+      }
     ]
     # stdoutへの出力を取得
-    replaceConsole: true
+    replaceConsole : LogConfig.stdout
   )
-  app.use log4js.connectLogger(logger,
-     # アクセスログを出力する際に無視する拡張子
-    nolog: [ '\\css', '\\.js', '\\.gif', '\\.jpg', '\\.png' ],
-     # アクセスログのフォーマット（JSON 形式）
-    format: JSON.stringify {
-      'method': ':method'
-      'request': ':url'
-      'status': ':status'
-      'user-agent': ':user-agent'
-    }
-  )
+  app.use log4js.connectLogger logger,
+    nolog  : LogConfig.nolog
+    format : LogConfig.format
+
   app.use express.methodOverride()
-  app.use express.static("#{__dirname}/public")
+  app.use express.static AppConfig.public
   console.log "configure opption"
-### ------- middleware call. ------------------------------- ###
+
 ### ------- create httpServer.------------------------------ ###
 if (cluster.isMaster)
   num_cpu = require('os').cpus().length
@@ -41,12 +63,11 @@ if (cluster.isMaster)
   while (workerID < num_cpu)
     new_worker_env = {}
     new_worker_env["WORKER_NAME"] = "worker#{workerID}"
-    new_worker_env["WORKER_PORT"] = 3001 + workerID
+    new_worker_env["WORKER_PORT"] = AppConfig.port + workerID
     new_worker_env["WORKER_STATE"] = false
     worker = cluster.fork(new_worker_env)
     workerID++
 else
-  http = require 'http'
   server = http.createServer(app)
   # server listen
   server.listen process.env["WORKER_PORT"], ->
@@ -65,11 +86,10 @@ else
         console.log "#{require(controller_root)(app: app, database: database)}"
       100
     )
-### ------- create httpServer.------------------------------ ###
+
 ### ------- Error. ----------------------------------------- ###
 # nodeがERRによって落ちないようにする
 process.on 'uncaughtException', (err) ->
   console.log "err >  #{err}"
   console.error "uncaughtException >  #{err.stack}"
-### ------- Error. ----------------------------------------- ###
 
