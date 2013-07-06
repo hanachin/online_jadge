@@ -13,7 +13,6 @@
     "crafity-log4js" : "*",
     "sequelize"      : "*",
     "socket.io"      : "*",
-    "session-mongoose" : "*",
-    "connect" : "*"
+    "session-mongoose" : "*"
   }
 }
