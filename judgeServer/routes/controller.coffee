@@ -12,10 +12,6 @@ module.exports = (option) ->
   # ------------------------------
   # rooting
   # ------------------------------
-  app.get '/', (req, res, next) ->
-    console.log 'test ------'
-    res.send 'test'
-
   app.get '/request_judge', (req, res, next) ->
     judge = require './judge_source'
     judge.main(req, res, dataBase)
