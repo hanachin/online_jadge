@@ -9,6 +9,5 @@ webServer/public/uploaded/Student/
 webServer/public/uploaded/Question/
 *~
 *.swp
-*.js
 ./node-config.json
 
