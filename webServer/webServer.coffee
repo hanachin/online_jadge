@@ -12,7 +12,6 @@ app = express()
 node_config = require '../node-config.json'
 config = require "../config"
 
-
 AppConfig = new config.AppConfig(3000, __dirname)
 LogConfig = new config.LogConfig(__dirname)
 

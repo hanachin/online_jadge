@@ -1,11 +1,7 @@
  ## ------- Module dependencies. --------------------------- ###
 express = require 'express'
 cluster = require 'cluster'
-<<<<<<< HEAD
-log4js = require 'crafity-log4js'
-=======
 log4js  = require 'crafity-log4js'
->>>>>>> origin/master
 http = require 'http'
 
 app = express()
