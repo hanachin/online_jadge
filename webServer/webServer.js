@@ -23,25 +23,43 @@ app = express();
 
 
 AppConfig = (function() {
-  var _keepExtention, _tmpdir;
+  var _engine, _keepExtention, _port, _public, _tmpdir, _views;
 
   function AppConfig() {}
+
+  _port = 3000;
 
   _tmpdir = "" + __dirname + "/tmp";
 
   _keepExtention = true;
 
-  AppConfig.port = 3000;
+  _views = "" + __dirname + "/views";
 
-  AppConfig.views = "" + __dirname + "/views";
+  _public = "" + __dirname + "/public";
 
-  AppConfig["public"] = "" + __dirname + "/public";
+  _engine = "ejs";
 
-  AppConfig.engine = "ejs";
+  AppConfig.getPort = function() {
+    return _port;
+  };
 
-  AppConfig.upload = {
-    uploadDir: _tmpdir,
-    isKeepExtensions: _keepExtention
+  AppConfig.getView = function() {
+    return _tmpdir;
+  };
+
+  AppConfig.getPublic = function() {
+    return _public;
+  };
+
+  AppConfig.getEngine = function() {
+    return _engine;
+  };
+
+  AppConfig.upload = function() {
+    return {
+      uploadDir: _tmpdir,
+      isKeepExtensions: _keepExtention
+    };
   };
 
   return AppConfig;
@@ -49,33 +67,51 @@ AppConfig = (function() {
 })();
 
 LogConfig = (function() {
+  var _date, _log, _size;
+
   function LogConfig() {}
 
-  LogConfig.log = "" + __dirname + "/logs/";
+  _log = "" + __dirname + "/logs/";
 
-  LogConfig.filename = "" + LogConfig.log + "/pxp_log";
+  _size = 1024 * 1024;
 
-  LogConfig.size = 1024 * 1024;
+  _date = '-yyyy-MM-dd';
 
-  LogConfig.format = '-yyyy-MM-dd';
+  LogConfig.getName = function() {
+    return "" + _log + "/pxp_log";
+  };
 
-  LogConfig.stdout = false;
+  LogConfig.getSize = function() {
+    return _size;
+  };
 
-  LogConfig.nolog = ['\\.css', '\\.js', '\\.gif', '\\.jpg', '\\.png'];
+  LogConfig.getStdout = function() {
+    return false;
+  };
 
-  LogConfig.format = JSON.stringify({
-    'method': ':method',
-    'request': ':url',
-    'status': ':status',
-    'user-agent': ':user-agent'
-  });
+  LogConfig.getPattern = function() {
+    return _date;
+  };
+
+  LogConfig.getNolog = function() {
+    return ['\\.css', '\\.js', '\\.gif', '\\.jpg', '\\.png'];
+  };
+
+  LogConfig.format = function() {
+    return JSON.stringify({
+      'method': ':method',
+      'request': ':url',
+      'status': ':status',
+      'user-agent': ':user-agent'
+    });
+  };
 
   return LogConfig;
 
 })();
 
 SessionConfig = (function() {
-  var _access, _interval, _limit, _path, _sessionstore;
+  var _access, _interval, _limit, _path, _secret, _sessionstore;
 
   function SessionConfig() {}
 
@@ -89,16 +125,24 @@ SessionConfig = (function() {
 
   _limit = new Date(Date.now() + _interval);
 
-  SessionConfig.secret = 'pxp_ss';
+  _secret = 'pxp_ss';
 
-  SessionConfig.store = new _sessionstore({
-    url: _path,
-    interval: _interval
-  });
+  SessionConfig.getSecret = function() {
+    return _secret;
+  };
 
-  SessionConfig.cookie = {
-    httpOnly: _access,
-    maxAge: _limit
+  SessionConfig.getStore = function() {
+    return new _sessionstore({
+      url: _path,
+      interval: _interval
+    });
+  };
+
+  SessionConfig.getCookie = function() {
+    return {
+      httpOnly: _access,
+      maxAge: _limit
+    };
   };
 
   return SessionConfig;
@@ -112,10 +156,10 @@ SessionConfig = (function() {
 app.configure(function() {
   var logger;
 
-  app.set('port', AppConfig.port);
-  app.set('views', AppConfig.views);
+  app.set('port', AppConfig.getPort());
+  app.set('views', AppConfig.getView());
   app.engine('ejs', engine);
-  app.set('view engine', AppConfig.engine);
+  app.set('view engine', AppConfig.getEngine());
   app.use(express.favicon());
   logger = log4js.getLogger('file');
   log4js.configure({
@@ -124,28 +168,28 @@ app.configure(function() {
         'type': 'console'
       }, {
         'type': 'file',
-        'filename': LogConfig.filename,
-        'maxLogSize': LogConfig.size,
-        'pattern': LogConfig.format,
+        'filename': LogConfig.getName(),
+        'maxLogSize': LogConfig.getSize(),
+        'pattern': LogConfig.getPattern(),
         'category': 'console'
       }
     ],
-    replaceConsole: LogConfig.stdout
+    replaceConsole: LogConfig.getStdout()
   });
   app.use(log4js.connectLogger(logger, {
-    nolog: LogConfig.nolog,
-    format: LogConfig.format
+    nolog: LogConfig.getNolog(),
+    format: LogConfig.format()
   }));
   app.use(express.compress());
-  app.use(express.bodyParser(AppConfig.upload));
-  app.use(express.cookieParser(SessionConfig.secret));
+  app.use(express.bodyParser(AppConfig.upload()));
+  app.use(express.cookieParser(SessionConfig.getSecret()));
   app.use(express.session({
-    secret: SessionConfig.secret,
-    store: SessionConfig.store,
-    cookie: SessionConfig.cookie
+    secret: SessionConfig.getSecret(),
+    store: SessionConfig.getStore(),
+    cookie: SessionConfig.getCookie()
   }));
   app.use(express.methodOverride());
-  app.use(express["static"](AppConfig["public"]));
+  app.use(express["static"](AppConfig.getPublic()));
   return console.log("app opption setup.");
 });
 
@@ -162,7 +206,7 @@ if (cluster.isMaster) {
     database_root = "" + __dirname + "/routes/database";
     database = require(database_root)();
     socketServer = require("" + __dirname + "/routes/socket_server");
-    console.log("" + (socketServer.setup(app, http, sio)));
+    console.log("" + (socketServer.setup(app, http, sio, SessionConfig)));
     return timer_id = setTimeout(function() {
       var controller;
 
@@ -179,9 +223,7 @@ if (cluster.isMaster) {
 */
 
 
-/*
-process.on 'uncaughtException', (err) ->
-  console.log "err >  #{err}"
-  console.error "uncaughtException >  #{err.stack}"
-*/
-
+process.on('uncaughtException', function(err) {
+  console.log("err >  " + err);
+  return console.error("uncaughtException >  " + err.stack);
+});

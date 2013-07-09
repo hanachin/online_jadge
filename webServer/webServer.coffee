@@ -9,28 +9,46 @@ app = express()
 
 ### ------- Class --------------------------- ###
 class AppConfig
+  _port   = 3000
   # 一時ファイルの保存ディレクトリ
   _tmpdir = "#{__dirname}/tmp"
   # ファイル名に拡張子を残すか
   _keepExtention = true
-  @port   = 3000
-  @views  = "#{__dirname}/views"
-  @public = "#{__dirname}/public"
-  @engine = "ejs"
-  @upload = {
-    uploadDir        : _tmpdir
-    isKeepExtensions : _keepExtention
-  }
+  _views  = "#{__dirname}/views"
+  _public = "#{__dirname}/public"
+  _engine = "ejs"
+
+  @getPort   : () ->
+    _port
+  @getView   : () ->
+    _tmpdir
+  @getPublic : () ->
+    _public
+  @getEngine : () ->
+    _engine
+  @upload : () ->
+    {
+      uploadDir        : _tmpdir
+      isKeepExtensions : _keepExtention
+    }
 
 class LogConfig
-  @log      = "#{__dirname}/logs/"
-  @filename = "#{@log}/pxp_log"
-  @size   = 1024 * 1024
-  @format = '-yyyy-MM-dd'
-  # stdoutへの出力を取得
-  @stdout = false
-  @nolog  = [ '\\.css', '\\.js', '\\.gif', '\\.jpg', '\\.png' ]
-  @format = JSON.stringify {
+  _log  = "#{__dirname}/logs/"
+  _size = 1024 * 1024
+  _date = '-yyyy-MM-dd'
+
+  @getName : () ->
+    "#{_log}/pxp_log"
+  @getSize   : () ->
+    _size
+  @getStdout : () ->
+    false
+  @getPattern : () ->
+    _date
+  @getNolog  : () ->
+    [ '\\.css', '\\.js', '\\.gif', '\\.jpg', '\\.png' ]
+  @format : () ->
+    JSON.stringify {
       'method'     : ':method'
       'request'    : ':url'
       'status'     : ':status'
@@ -43,27 +61,31 @@ class SessionConfig
   # trueにするとJavascriptなどからアクセスできなくなる
   _access = false
   # millisec (default: 60000)
+  # 60 * 60 * 1000 = 3600000 msec = 1 hour (設定しないとブラウザを終了したときにsessionも切れる
   _interval = 60 * 60 * 1000 * 24
   _limit  = new Date(Date.now() + _interval)
-  @secret = 'pxp_ss'
-  # 60 * 60 * 1000 = 3600000 msec = 1 hour (設定しないとブラウザを終了したときにsessionも切れる
-  @store  = new _sessionstore(
-    url      : _path
-    interval : _interval
-  )
-  @cookie = {
-    httpOnly  : _access
-    maxAge    : _limit
-  }
+  _secret = 'pxp_ss'
+  @getSecret : () ->
+    _secret
+  @getStore  : () ->
+    new _sessionstore(
+      url      : _path
+      interval : _interval
+    )
+  @getCookie : () ->
+    {
+      httpOnly  : _access
+      maxAge    : _limit
+    }
 
 ### ------- middleware ------------------------ ###
 # expressの公式に起動の順番に注意とある
 # 順番どおりに起動している
 app.configure ->
-  app.set 'port', AppConfig.port
-  app.set 'views', AppConfig.views
+  app.set 'port',  AppConfig.getPort()
+  app.set 'views', AppConfig.getView()
   app.engine 'ejs', engine
-  app.set 'view engine', AppConfig.engine
+  app.set 'view engine', AppConfig.getEngine()
   app.use express.favicon()
 
   # log -----------------------
@@ -73,17 +95,17 @@ app.configure ->
       {'type': 'console'}
       {
         'type'       : 'file'
-        'filename'   : LogConfig.filename
-        'maxLogSize' : LogConfig.size
-        'pattern'    : LogConfig.format
+        'filename'   : LogConfig.getName()
+        'maxLogSize' : LogConfig.getSize()
+        'pattern'    : LogConfig.getPattern()
         'category'   : 'console'
       }
     ]
-    replaceConsole : LogConfig.stdout
+    replaceConsole : LogConfig.getStdout()
   )
   app.use log4js.connectLogger logger, {
-    nolog  : LogConfig.nolog
-    format : LogConfig.format
+    nolog  : LogConfig.getNolog()
+    format : LogConfig.format()
   }
 
   # 応答データの圧縮
@@ -95,23 +117,24 @@ app.configure ->
   # content-type='application/x-www-form-urlencoded'->req.bodyにテキストの一般的なWebFormの入力値を付与
   # content-type='multipart/form-data'->middleware/multipart.jsを使いreq.body, req.files に結果が付与
   # postのリクエスト処理
-  app.use express.bodyParser AppConfig.upload
+  app.use express.bodyParser AppConfig.upload()
 
   # session -------------------
-  app.use express.cookieParser SessionConfig.secret
+  app.use express.cookieParser SessionConfig.getSecret()
   app.use express.session(
-    secret : SessionConfig.secret
-    store  : SessionConfig.store
-    cookie : SessionConfig.cookie
+    secret : SessionConfig.getSecret()
+    store  : SessionConfig.getStore()
+    cookie : SessionConfig.getCookie()
   )
+
   app.use express.methodOverride()
-  app.use express.static AppConfig.public
+  app.use express.static AppConfig.getPublic()
   return console.log "app opption setup."
 
 ### ------- create httpServer.----------------- ###
 if (cluster.isMaster)
-  server = http.createServer(app)
   # app server listen
+  server = http.createServer(app)
   # 起動順序に注意
   # database -> socketServerのsetup
   # socketServerの設定をした後にcontrollerのsetup
@@ -123,7 +146,7 @@ if (cluster.isMaster)
 
     # socketio setup
     socketServer = require "#{__dirname}/routes/socket_server"
-    console.log "#{socketServer.setup(app, http, sio)}"
+    console.log "#{socketServer.setup(app, http, sio, SessionConfig)}"
 
     # controller setup
     timer_id = setTimeout(
