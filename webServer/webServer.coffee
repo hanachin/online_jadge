@@ -7,53 +7,11 @@ http = require 'http'
 sio  = require 'socket.io'
 app = express()
 
+
 ### ------- Class --------------------------- ###
-class AppConfig
-  _port   = 3000
-  # 一時ファイルの保存ディレクトリ
-  _tmpdir = "#{__dirname}/tmp"
-  # ファイル名に拡張子を残すか
-  _keepExtention = true
-  _views  = "#{__dirname}/views"
-  _public = "#{__dirname}/public"
-  _engine = "ejs"
-
-  @getPort   : () ->
-    _port
-  @getView   : () ->
-    _tmpdir
-  @getPublic : () ->
-    _public
-  @getEngine : () ->
-    _engine
-  @upload : () ->
-    {
-      uploadDir        : _tmpdir
-      isKeepExtensions : _keepExtention
-    }
-
-class LogConfig
-  _log  = "#{__dirname}/logs/"
-  _size = 1024 * 1024
-  _date = '-yyyy-MM-dd'
-
-  @getName : () ->
-    "#{_log}/pxp_log"
-  @getSize   : () ->
-    _size
-  @getStdout : () ->
-    false
-  @getPattern : () ->
-    _date
-  @getNolog  : () ->
-    [ '\\.css', '\\.js', '\\.gif', '\\.jpg', '\\.png' ]
-  @format : () ->
-    JSON.stringify {
-      'method'     : ':method'
-      'request'    : ':url'
-      'status'     : ':status'
-      'user-agent' : ':user-agent'
-    }
+config = require "../config"
+AppConfig = new config.AppConfig(3000, __dirname)
+LogConfig = new config.LogConfig(__dirname)
 
 class SessionConfig
   _sessionstore = require('session-mongoose')(express)

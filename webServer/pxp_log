@@ -1,0 +1,16 @@
+[2013-07-09 10:19:42.466] [INFO] file - app opption setup.
+[2013-07-09 10:19:42.470] [INFO] file - Master Server listening on 3000
+[2013-07-09 10:19:42.641] [INFO] file - Database is setup.
+[2013-07-09 10:50:34.167] [INFO] file - app opption setup.
+[2013-07-09 10:50:34.171] [INFO] file - Master Server listening on 3000
+[2013-07-09 10:50:34.401] [INFO] file - Database is setup.
+[2013-07-09 10:50:34.405] [INFO] file -    [36minfo  -[39m 'socket.io started'
+[2013-07-09 10:56:26.560] [INFO] file - app opption setup.
+[2013-07-09 10:56:26.564] [INFO] file - Master Server listening on 3000
+[2013-07-09 10:56:26.781] [INFO] file - Database is setup.
+[2013-07-09 10:58:16.411] [INFO] file - app opption setup.
+[2013-07-09 10:58:16.416] [INFO] file - Master Server listening on 3000
+[2013-07-09 10:58:16.592] [INFO] file - Database is setup.
+[2013-07-09 10:58:16.613] [INFO] file -    [36minfo  -[39m 'socket.io started'
+[2013-07-09 10:58:16.614] [INFO] file - socket_server setup.
+[2013-07-09 10:58:16.739] [INFO] file - controller is setup

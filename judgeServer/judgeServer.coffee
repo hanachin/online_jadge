@@ -7,32 +7,13 @@ http = require 'http'
 app = express()
 
 ### ------- Class ------------------------------------------ ###
-class AppConfig
-  # 一時ファイルの保存ディレクトリ
-  _tmpdir = "#{__dirname}/tmp"
-  # ファイル名に拡張子を残すか
-  _keepExtention = true
-  @port   = 3001
-  @public = "#{__dirname}/public"
-
-class LogConfig
-  @log      = "#{__dirname}/logs/"
-  @filename = "#{@log}/pxp_log"
-  @size   = 1024 * 1024
-  @format = '-yyyy-MM-dd'
-  # stdoutへの出力を取得
-  @stdout = false
-  @nolog  = ['\\.js']
-  @format = JSON.stringify {
-      'method'     : ':method'
-      'request'    : ':url'
-      'status'     : ':status'
-      'user-agent' : ':user-agent'
-    }
+config = require "../config"
+AppConfig = new config.AppConfig(3001, __dirname)
+LogConfig = new config.LogConfig(__dirname)
 
 ### ------- middleware call. ------------------------------- ###
 app.configure ->
-  # log ファイル 関係
+  # log -----------------------
   logger = log4js.getLogger 'file'
   log4js.configure(
     # ログファイルの出力先
@@ -40,21 +21,21 @@ app.configure ->
       {'type' : 'console'}
       {
         'type'       : 'file'
-        'filename'   : LogConfig.filename
-        'maxLogSize' : LogConfig.size
-        'pattern'    : LogConfig.format
+        'filename'   : LogConfig.getName()
+        'maxLogSize' : LogConfig.getSize()
+        'pattern'    : LogConfig.getPattern()
         'category'   : 'console'
       }
     ]
     # stdoutへの出力を取得
-    replaceConsole : LogConfig.stdout
+    replaceConsole : LogConfig.getStdout()
   )
   app.use log4js.connectLogger logger,
-    nolog  : LogConfig.nolog
-    format : LogConfig.format
+    nolog  : LogConfig.getNolog()
+    format : LogConfig.format()
 
   app.use express.methodOverride()
-  app.use express.static AppConfig.public
+  app.use express.static AppConfig.getPublic()
   console.log "configure opption"
 
 ### ------- create httpServer.------------------------------ ###
@@ -64,7 +45,7 @@ if (cluster.isMaster)
   while (workerID < num_cpu)
     new_worker_env = {}
     new_worker_env["WORKER_NAME"] = "worker#{workerID}"
-    new_worker_env["WORKER_PORT"] = AppConfig.port + workerID
+    new_worker_env["WORKER_PORT"] = AppConfig.getPort() + workerID
     new_worker_env["WORKER_STATE"] = false
     worker = cluster.fork(new_worker_env)
     workerID++
