@@ -7,6 +7,7 @@ http = require 'http'
 app = express()
 
 ### ------- Class ------------------------------------------ ###
+node_config = require '../node-config.json'
 config = require "../config"
 AppConfig = new config.AppConfig(3001, __dirname)
 LogConfig = new config.LogConfig(__dirname)
@@ -56,8 +57,8 @@ else
     console.log "Master Server listening on #{process.env["WORKER_PORT"]}"
 
     # database setup
-    database_root = "#{__dirname}/routes/database"
-    database = require(database_root)()
+    database_root = "../db/database"
+    database = require(database_root)(config : node_config)
 
     # rooting start
     # databaseを設定した後にcontrollerのsetup

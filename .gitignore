@@ -10,3 +10,5 @@ webServer/public/uploaded/Question/
 *~
 *.swp
 *.js
+./node-config.json
+

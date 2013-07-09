@@ -9,7 +9,10 @@ app = express()
 
 
 ### ------- Class --------------------------- ###
+node_config = require '../node-config.json'
 config = require "../config"
+
+
 AppConfig = new config.AppConfig(3000, __dirname)
 LogConfig = new config.LogConfig(__dirname)
 
@@ -22,7 +25,7 @@ class SessionConfig
   # 60 * 60 * 1000 = 3600000 msec = 1 hour (設定しないとブラウザを終了したときにsessionも切れる
   _interval = 60 * 60 * 1000 * 24
   _limit  = new Date(Date.now() + _interval)
-  _secret = 'pxp_ss'
+  _secret = node_config.session.session_secret
   @getSecret : () ->
     _secret
   @getStore  : () ->
@@ -99,8 +102,8 @@ if (cluster.isMaster)
   server.listen app.get('port'), ->
     console.log "Master Server listening on #{app.get('port')}"
     # database setup
-    database_root = "#{__dirname}/routes/database"
-    database = require(database_root)()
+    database_root = "../db/database"
+    database = require(database_root)(config : node_config)
 
     # socketio setup
     socketServer = require "#{__dirname}/routes/socket_server"
@@ -109,8 +112,8 @@ if (cluster.isMaster)
     # controller setup
     timer_id = setTimeout(
       ->
-        controller    = "#{__dirname}/routes/controller"
-        console.log "#{require(controller)(app: app, database: database)}"
+        controller = "#{__dirname}/routes/controller"
+        console.log "#{require(controller)(app : app, database : database)}"
       100
     )
 

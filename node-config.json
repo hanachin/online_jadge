@@ -1,0 +1,15 @@
+{
+  "session" : {
+    "session_secret" : "pxp_lab",
+    "cookie_secret"  : "pxp_lab"
+  },
+  "database" : {
+    "dbname" : "pxp_lab",
+    "dbuser" : "root",
+    "local_pass"  : "29148931",
+    "server_pass" : "Passw0rd",
+    "hostname" : "localhost",
+    "port" : "3306"
+  }
+}
+

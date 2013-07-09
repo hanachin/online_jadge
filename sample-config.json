@@ -1,0 +1,15 @@
+{
+  "session" : {
+    "session_secret" : "secret_key",
+    "cookie_secret"  : "cookie_key"
+  },
+  "database" : {
+    "dbname" : "*****",
+    "dbuser" : "*****",
+    "local_pass"  : "*****",
+    "server_pass" : "*****",
+    "hostname" : "******",
+    "port" : "*****"
+  }
+}
+
