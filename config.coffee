@@ -32,7 +32,7 @@ exports.LogConfig = class LogConfig
   constructor : (dir) ->
     @dir = dir
   getName : () ->
-    "#{@dir}/pxp_log"
+    "#{@dir}/logs/pxp_log"
   getSize   : () ->
     _size
   getStdout : () ->
