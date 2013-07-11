@@ -7,7 +7,6 @@ http = require 'http'
 sio  = require 'socket.io'
 app = express()
 
-
 ### ------- Class --------------------------- ###
 node_config = require '../node-config.json'
 config = require "../config"
@@ -16,6 +15,7 @@ AppConfig = new config.AppConfig(3000, __dirname)
 LogConfig = new config.LogConfig(__dirname)
 
 class SessionConfig
+  _connect = require 'connect'
   _sessionstore = require('session-mongoose')(express)
   _path = 'mongodb://localhost/lab_session'
   # trueにするとJavascriptなどからアクセスできなくなる
@@ -25,10 +25,13 @@ class SessionConfig
   _interval = 60 * 60 * 1000 * 24
   _limit  = new Date(Date.now() + _interval)
   _secret = node_config.session.session_secret
+  @getMemoryStore : () ->
+    _sessionstore
   @getSecret : () ->
     _secret
   @getStore  : () ->
     new _sessionstore(
+      secret   : _secret
       url      : _path
       interval : _interval
     )
@@ -89,7 +92,8 @@ app.configure ->
 
   app.use express.methodOverride()
   app.use express.static AppConfig.getPublic()
-  return console.log "app opption setup."
+
+  console.log "app opption setup."
 
 ### ------- create httpServer.----------------- ###
 if (cluster.isMaster)
@@ -106,7 +110,7 @@ if (cluster.isMaster)
 
     # socketio setup
     socketServer = require "#{__dirname}/routes/socket_server"
-    console.log "#{socketServer.setup(app, http, sio, SessionConfig)}"
+    console.log "#{socketServer.setup(app, http, sio, SessionConfig, express)}"
 
     # controller setup
     timer_id = setTimeout(
