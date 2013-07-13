@@ -52,7 +52,9 @@ module.exports = (option) ->
 
   # socket.io -------------------
   sio.sockets.on 'connection', (socket) ->
+    console.log "connection"
     socket.on 'submit_source', (data) ->
+      console.log "submit"
       submitSource = require './submit_source'
       submitSource.main(data, socket, sio, dataBase)
 

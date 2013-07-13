@@ -3,6 +3,21 @@ exports.setup = (app, http, sio, SessionConfig, mongoose) ->
   exports.socketio = sio.listen(socketServer, {'log level' : 2})
   socketServer.listen(8080)
 
+  # 接続はサービスをセットアップするときのみ行う（接続が重複する
+  mongoose = require 'mongoose'
+  mongoose.connect 'mongodb://localhost/lab_sessions'
+
+  # mongoDBのコレクションを定義
+  Schema = mongoose.Schema
+  readScheme = new Schema(
+    _id     : String
+    data    : Object
+    expires : Date
+    sid     : String
+  )
+  # 接続
+  Sessions = mongoose.model 'sessions', readScheme
+
   # socket.ioの初期化処理
   exports.socketio.configure () ->
     exports.socketio.set 'authorization', (handshakeData, callback) ->
@@ -25,46 +40,9 @@ exports.setup = (app, http, sio, SessionConfig, mongoose) ->
       sessionID = parse.substr(0, index)
       sessionID = decodeURIComponent(sessionID)
 
-      # Socketがconnectionを貼った時に、sessionにアクセスできるようにする
-      mongoose = require 'mongoose'
-      mongoose.connect 'mongodb://localhost/lab_sessions'
-      Schema = mongoose.Schema
-      readScheme = new Schema(
-        _id     : String
-        data    : Object
-        expires : Date
-        sid     : String
-      )
-      Sessions = mongoose.model 'sessions', readScheme
+      # find
       Sessions.findOne {sid : sessionID}, (err, data) ->
         handshakeData.sessionID = data.data.username
         return callback(null, true)
 
-     ###
-      {
-        "_id" : ObjectId("51dfec73417c950fa24248eb"),
-        "data" : {
-          "cookie" : {
-            "path" : "/",
-            "_expires" : ISODate("2013-07-13T12:18:31.298Z"),
-            "originalMaxAge" : 86381801,
-            "httpOnly" : false,
-            "expires" : ISODate("2013-07-13T12:18:31.298Z"),
-            "maxAge" : 86381800,
-            "data" : {
-              "originalMaxAge" : 86381801,
-              "expires" : ISODate("2013-07-13T12:18:31.298Z"),
-              "secure" : null,
-              "httpOnly" : false,
-              "domain" : null,
-              "path" : "/"
-            }
-          },
-          "username" : "081320",
-          "loginflag" : true
-        },
-        "expires" : ISODate("2013-07-13T12:18:31.298Z"),
-        "sid" : "TzonPfFD09eBV/SosCbNRUKu"
-      }
-      ###
   return "socket_server setup."
