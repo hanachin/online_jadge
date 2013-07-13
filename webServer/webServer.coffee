@@ -5,6 +5,7 @@ engine  = require 'ejs-locals'
 log4js  = require 'crafity-log4js'
 http = require 'http'
 sio  = require 'socket.io'
+mongoose = require 'mongoose'
 app = express()
 
 ### ------- Class --------------------------- ###
@@ -17,7 +18,7 @@ LogConfig = new config.LogConfig(__dirname)
 class SessionConfig
   _connect = require 'connect'
   _sessionstore = require('session-mongoose')(express)
-  _path = 'mongodb://localhost/lab_session'
+  _path = 'mongodb://localhost/lab_sessions'
   # trueにするとJavascriptなどからアクセスできなくなる
   _access = false
   # millisec (default: 60000)
@@ -110,7 +111,7 @@ if (cluster.isMaster)
 
     # socketio setup
     socketServer = require "#{__dirname}/routes/socket_server"
-    console.log "#{socketServer.setup(app, http, sio, SessionConfig, express)}"
+    console.log "#{socketServer.setup(app, http, sio, SessionConfig, mongoose)}"
 
     # controller setup
     timer_id = setTimeout(

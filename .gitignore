@@ -2,7 +2,7 @@
 *~
 *.swp
 node-config.json
-./db/node_modules/
+db/node_modules/
 webServer/logs/
 judgeServer/logs/
 webServer/tmp/

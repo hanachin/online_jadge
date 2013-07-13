@@ -5,10 +5,7 @@ exports.main = (data, socket, sio, dataBase) ->
   http  = require 'http'
 
   # user info -------------
-  username = "test"
-  console.log username
-  console.log socket.handshake.session
-
+  username = socket.handshake.sessionID
   questionNo = data.questionNo
   source     = data.source
   data.judgeServerID = ''

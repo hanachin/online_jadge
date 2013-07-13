@@ -12,7 +12,6 @@ module.exports = (option) ->
   # ------------------------------
   # loginCheck
   loginCheck =  (req, res, next) ->
-    console.log req.session
     if (req.session.loginflag)
       next()
     else
@@ -53,8 +52,6 @@ module.exports = (option) ->
 
   # socket.io -------------------
   sio.sockets.on 'connection', (socket) ->
-    console.log "test -----"
-    console.log socket.handshake.sessionID
     socket.on 'submit_source', (data) ->
       submitSource = require './submit_source'
       submitSource.main(data, socket, sio, dataBase)
