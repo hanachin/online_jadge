@@ -8,7 +8,7 @@
   "dependencies": {
     "express"      : "3.0.0rc2",
     "async"	       : "*",
-    "crafity-log4js : "*",
+    "crafity-log4js" : "*",
     "mysql"     : "*",
     "sequelize" : "*"
   }
